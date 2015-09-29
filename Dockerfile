@@ -5,6 +5,10 @@
 
 FROM fedora:22
 
+# Only enable when my copr repo has the newer stable build.
+RUN dnf -y install 'dnf-command(copr)' && \
+    dnf -y copr enable jasonish/suricata
+
 RUN dnf -y install \
     cronie \
     findutils \
@@ -29,6 +33,6 @@ RUN dnf -y clean all && \
 RUN chmod 755 /var/log/suricata
 
 COPY /etc /etc
-COPY /entrypoint.sh /
+COPY /docker-entrypoint.sh /
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
