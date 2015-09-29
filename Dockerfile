@@ -16,7 +16,7 @@ RUN dnf -y install \
     python-pip \
     python-simplejson \
     supervisor \
-    suricata \
+    suricata-2.0.9 \
     tar
 
 # Install my own rule download tool, rulecat and seed the image with
