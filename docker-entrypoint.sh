@@ -1,7 +1,7 @@
 #! /bin/sh
 
 # If no arguments, bail.
-if [ "$#" -eq 0 ]; then
+if [ -z "${SURICATA_ARGS}" -a "$#" -eq 0 ]; then
     echo "Nothing to do."
     exit 1
 fi
@@ -21,5 +21,10 @@ fi
 # supervisord so the container can be self-maintaining by rotating its
 # own logs.
 
-export SURICATA_ARGS="$@"
+# SURICATA_ARGS may already be set, if so use it. Otherwise set
+# SURICATA_ARGS to the provided command line argumnets.
+if [ -z "${SURICATA_ARGS}" ]; then
+    SURICATA_ARGS="$@"
+fi
+export SURICATA_ARGS
 exec /usr/bin/supervisord -c /etc/supervisord.conf
