@@ -7,7 +7,7 @@ FROM fedora:22
 
 # Only enable when my copr repo has the newer stable build.
 RUN dnf -y install 'dnf-command(copr)' && \
-    dnf -y copr enable jasonish/suricata
+    dnf -y copr enable jasonish/suricata-stable
 
 RUN dnf -y install \
     cronie \
@@ -16,7 +16,7 @@ RUN dnf -y install \
     python-pip \
     python-simplejson \
     supervisor \
-    suricata-2.0.9 \
+    suricata-2.0.10 \
     tar
 
 # Install my own rule download tool, rulecat and seed the image with
