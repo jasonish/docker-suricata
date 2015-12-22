@@ -10,8 +10,8 @@ RUN dnf -y install 'dnf-command(copr)' && \
     python-pip \
     python-simplejson \
     supervisor \
-    suricata-2.0.10 \
     tar && \
+    dnf -y install --best suricata-2.0.10 && \
     dnf -y clean all && \
     find /var/log -type f -exec rm -f {} \;
 
