@@ -17,6 +17,25 @@ which will map the logs directory (in your current directory) to the
 Suricata log directory in the container so you can view the Suricata
 logs from outside the container.
 
+## Volumes
+
+### /var/log/suricata
+
+The directory /var/log/suricata is exposed as a volume. Another
+container can attach it by using the --volumes-from Docker option.
+For example:
+
+- Start the Suricata container with a name:
+
+    docker run -it --net=host --name=suricata jasonish/suricata -i enp3s0
+
+- Start a second container with volumes-from:
+
+    docker run -it --net=host --volumes-from=suricata logstash /bin/bash
+
+This will expose /var/log/suricata from the Suricata container as
+/var/log/suricata in the Logstash container.
+
 ## Configuration
 
 Currently Suricata is seeded with the Emerging Threats open ruleset
