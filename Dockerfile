@@ -1,17 +1,16 @@
 FROM fedora:23
 
 # Only enable when my copr repo has the newer stable build.
-RUN dnf -y install 'dnf-command(copr)' && \
-    dnf -y copr enable jasonish/suricata-stable && \
-    dnf -y install \
+RUN dnf -y install \
     cronie \
     findutils \
     logrotate \
     python-pip \
     python-simplejson \
     supervisor \
-    tar && \
-    dnf -y install --best suricata-2.0.10 && \
+    tar \
+    http://codemonkey.net/files/rpm/suricata/stable/fedora-23-x86_64/suricata-3.0-0.1.fc23.x86_64.rpm \
+    && \
     dnf -y clean all && \
     find /var/log -type f -exec rm -f {} \;
 
@@ -28,5 +27,7 @@ COPY /etc /etc
 COPY /docker-entrypoint.sh /
 
 VOLUME /var/log/suricata
+
+RUN /usr/sbin/suricata -V
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
