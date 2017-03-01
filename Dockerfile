@@ -1,9 +1,9 @@
-FROM fedora:24
+FROM fedora:25
 
 COPY suricata.repo /etc/yum.repos.d
 
 RUN dnf -y --refresh install \
-    suricata-3.1.1 \
+    suricata \
     cronie \
     findutils \
     logrotate \
@@ -17,8 +17,8 @@ RUN dnf -y --refresh install \
 
 # Install my own rule download tool, rulecat and seed the image with
 # some rules.
-# RUN pip install https://github.com/jasonish/py-idstools/archive/master.zip && \
-#     idstools-rulecat --rules-dir /etc/suricata/rules
+RUN pip install idstools
+RUN idstools-rulecat -o /etc/suricata/rules
 
 # Open up the permissions on /var/log/suricata so linked containers can
 # see it.

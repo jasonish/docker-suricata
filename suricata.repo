@@ -1,7 +1,10 @@
-[suricata]
+[jasonish-suricata-stable]
 name=Copr repo for suricata-stable owned by jasonish
-baseurl=https://codemonkey.net/files/rpm/copr-mirror/jasonish-suricata-stable-fedora-24-x86_64/
+baseurl=https://copr-be.cloud.fedoraproject.org/results/jasonish/suricata-stable/fedora-$releasever-$basearch/
+type=rpm-md
+skip_if_unavailable=True
 gpgcheck=1
 gpgkey=https://copr-be.cloud.fedoraproject.org/results/jasonish/suricata-stable/pubkey.gpg
+repo_gpgcheck=0
 enabled=1
 enabled_metadata=1
