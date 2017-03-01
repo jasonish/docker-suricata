@@ -11,7 +11,8 @@ inside a container:
 But you will probably want to see what Suricata logs, so you may want
 to start it like:
 
-    docker run -it --net=host -v $(pwd)/logs:/var/log/suricata -i <interface>
+    docker run -it --net=host -v $(pwd)/logs:/var/log/suricata \
+		jasonish/suricata -i <interface>
 
 which will map the logs directory (in your current directory) to the
 Suricata log directory in the container so you can view the Suricata
