@@ -17,14 +17,4 @@ if [ "${1:0:1}" != "-" ]; then
     PS1=${PS1} exec "$@"
 fi
 
-# Starting Suricata. We don't run it directly, but instead under
-# supervisord so the container can be self-maintaining by rotating its
-# own logs.
-
-# SURICATA_ARGS may already be set, if so use it. Otherwise set
-# SURICATA_ARGS to the provided command line argumnets.
-if [ -z "${SURICATA_ARGS}" ]; then
-    SURICATA_ARGS="$@"
-fi
-export SURICATA_ARGS
-exec /usr/bin/supervisord -c /etc/supervisord.conf
+exec /usr/sbin/suricata $@

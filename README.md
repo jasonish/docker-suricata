@@ -36,13 +36,3 @@ For example:
 
 This will expose /var/log/suricata from the Suricata container as
 /var/log/suricata in the Logstash container.
-
-## Configuration
-
-Currently Suricata is seeded with the Emerging Threats open ruleset
-when the container is created.
-
-User level configuration is still a TODO. Of course you could map in
-your own /etc/suricata and provide all required configuration files
-and rules yourself.
-

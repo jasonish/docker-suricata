@@ -1,6 +1,0 @@
-#! /bin/bash
-
-/usr/sbin/suricata $@
-
-# Kill supervisord on exit, so the container exits.
-killall supervisord
