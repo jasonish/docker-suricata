@@ -1,11 +1,8 @@
-FROM fedora:25
+FROM centos:7
 
-RUN dnf -y install dnf-plugins-core
-RUN dnf -y copr enable jasonish/suricata-stable
-RUN dnf -y install --best suricata-3.2.2
-RUN dnf -y --refresh install \
-    findutils && \
-    dnf -y clean all && \
+COPY /jasonish-suricata-beta-epel-7.repo /etc/yum.repos.d/
+RUN yum -y install suricata findutil && \
+    yum clean all && \
     find /var/log -type f -exec rm -f {} \;
 
 # Open up the permissions on /var/log/suricata so linked containers can
