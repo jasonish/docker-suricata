@@ -1,8 +1,8 @@
-FROM fedora:25
+FROM fedora:26
 
 RUN dnf -y install dnf-plugins-core
 RUN dnf -y copr enable jasonish/suricata-stable
-RUN dnf -y install --best suricata-3.2.3
+RUN dnf -y install --best suricata-4.0.0
 RUN dnf -y --refresh install \
     findutils && \
     dnf -y clean all && \
