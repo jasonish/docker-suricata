@@ -1,12 +1,12 @@
-FROM fedora:26
+FROM fedora:27
 
-RUN dnf -y install dnf-plugins-core
-RUN dnf -y copr enable jasonish/suricata-stable
-RUN dnf -y install --best suricata-4.0.0
 RUN dnf -y --refresh install \
-    findutils && \
+    	dnf-plugins-core \
+	findutils && \
+    dnf -y copr enable jasonish/suricata-stable && \
+    dnf -y install --best suricata && \
     dnf -y clean all && \
-    find /var/log -type f -exec rm -f {} \;
+    find /var/log -type f -delete
 
 # Open up the permissions on /var/log/suricata so linked containers can
 # see it.
