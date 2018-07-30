@@ -1,4 +1,4 @@
-TAG :=	jasonish/suricata:latest
+TAG :=	jasonish/suricata
 
 all: build
 

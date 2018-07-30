@@ -1,12 +1,10 @@
-FROM fedora:27
+FROM centos:7
 
-RUN dnf -y --refresh install \
-    	dnf-plugins-core \
-	findutils && \
-    dnf -y copr enable jasonish/suricata-stable && \
-    dnf -y install --best suricata && \
-    dnf -y clean all && \
-    find /var/log -type f -delete
+RUN yum -y install epel-release yum-plugin-copr && \
+    yum -y copr enable jasonish/suricata-stable && \
+    yum -y install suricata
+
+RUN suricata --build-info
 
 # Open up the permissions on /var/log/suricata so linked containers can
 # see it.
