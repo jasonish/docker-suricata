@@ -2,9 +2,7 @@ FROM centos:7
 
 RUN yum -y install epel-release yum-plugin-copr && \
     yum -y copr enable jasonish/suricata-stable && \
-    yum -y install suricata
-
-RUN suricata --build-info
+    yum -y install suricata-rust
 
 # Open up the permissions on /var/log/suricata so linked containers can
 # see it.

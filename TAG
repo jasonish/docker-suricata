@@ -1,1 +1,1 @@
-jasonish/suricata:beta
+jasonish/suricata:latest-rust
