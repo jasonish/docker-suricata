@@ -1,4 +1,4 @@
-TAG :=	jasonish/suricata:latest
+TAG :=	$(shell cat TAG)
 
 all: build
 
