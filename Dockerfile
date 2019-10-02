@@ -54,6 +54,7 @@ RUN cd suricata-update && \
 RUN ./autogen.sh && ./configure \
         --prefix=/usr \
         --disable-shared \
+        --disable-march-native \
         --enable-lua
 
 ARG CORES=1
@@ -61,10 +62,6 @@ ARG CORES=1
 RUN make -j "${CORES}"
 
 RUN make install install-conf DESTDIR=/fakeroot
-
-# Open up the permissions on /var/log/suricata so linked containers can
-# see it.
-#RUN chmod 755 /var/log/suricata
 
 FROM fedora:30
 
@@ -97,6 +94,8 @@ RUN dnf -y install \
         && dnf clean all
 
 COPY --from=0 /fakeroot /
+
+RUN dnf -y update && dnf -y clean all
 
 RUN cp -a /etc/suricata /etc/suricata.dist
 
