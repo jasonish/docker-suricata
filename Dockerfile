@@ -32,28 +32,24 @@ RUN dnf -y install \
         nss-softokn-devel \
         pcre-devel \
         pkgconfig \
-        python3-devel \
-        python3-yaml \
+        python-devel \
+        python-yaml \
         rust \
         which \
         zlib-devel
 
 WORKDIR /src
 
-RUN git clone https://github.com/OISF/suricata.git && \
-        cd suricata && \
-        git clone https://github.com/OISF/libhtp.git
+ENV VERSION 4.1.5
+RUN curl -OL https://www.openinfosecfoundation.org/download/suricata-${VERSION}.tar.gz
+RUN tar zxvf suricata-${VERSION}.tar.gz
 
-WORKDIR /src/suricata
+WORKDIR /src/suricata-${VERSION}
 
-RUN cd suricata-update && \
-        curl -L \
-        https://github.com/OISF/suricata-update/archive/master.tar.gz | \
-        tar zxvf - --strip-components=1
-
-RUN ./autogen.sh && ./configure \
+RUN ./configure \
         --prefix=/usr \
         --disable-shared \
+        --disable-march-native \
         --enable-lua
 
 ARG CORES=1
@@ -61,10 +57,6 @@ ARG CORES=1
 RUN make -j "${CORES}"
 
 RUN make install install-conf DESTDIR=/fakeroot
-
-# Open up the permissions on /var/log/suricata so linked containers can
-# see it.
-#RUN chmod 755 /var/log/suricata
 
 FROM fedora:30
 
@@ -90,7 +82,7 @@ RUN dnf -y install \
         nss \
         nss-softokn \
         pcre \
-        python3-yaml \
+        python-yaml \
         tcpdump \
         which \
         zlib \
