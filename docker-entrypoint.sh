@@ -6,4 +6,13 @@ if [ "${1:0:1}" != "-" ]; then
     PS1=${PS1} exec "$@"
 fi
 
-exec /usr/sbin/suricata $@
+for src in /etc/suricata.dist/*; do
+    filename=$(basename ${src})
+    dst="/etc/suricata/${filename}"
+    if ! test -e "${dst}"; then
+        echo "Creating ${dst}."
+        cp -a "${src}" "${dst}"
+    fi
+done
+
+exec /usr/bin/suricata $@

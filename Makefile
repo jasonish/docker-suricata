@@ -1,9 +1,12 @@
-TAG :=	$(shell cat TAG)
+NAME :=	jasonish/suricata
+TAG :=	$(shell git rev-parse --abbrev-ref HEAD)
+
+CORES :=$(shell cat /proc/cpuinfo | grep ^processor | wc -l)
 
 all: build
 
 build:
-	docker build --rm -t ${TAG} .
+	docker build --rm -t ${NAME}:${TAG} --build-arg CORES="${CORES}" .
 
 clean:
 	find . -name \*~ -print0 | xargs -0 rm -f
