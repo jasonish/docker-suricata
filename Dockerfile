@@ -96,6 +96,7 @@ RUN dnf -y update && dnf -y install \
 
 COPY --from=0 /fakeroot /
 
+COPY /update.yaml /etc/suricata/update.yaml
 RUN cp -a /etc/suricata /etc/suricata.dist
 
 RUN suricata-update update-sources && \
