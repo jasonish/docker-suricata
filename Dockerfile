@@ -1,5 +1,7 @@
 FROM fedora:30
 
+RUN dnf -y update
+
 RUN dnf -y install \
         autoconf \
         automake \
@@ -59,6 +61,9 @@ RUN make -j "${CORES}"
 RUN make install install-conf DESTDIR=/fakeroot
 
 FROM fedora:30
+
+RUN dnf -y update
+RUN dnf -y clean all
 
 RUN dnf -y install \
         file \
