@@ -1,5 +1,7 @@
 FROM fedora:30
 
+RUN dnf -y update
+
 RUN dnf -y install \
         autoconf \
         automake \
@@ -42,16 +44,15 @@ WORKDIR /src
 
 RUN git clone https://github.com/OISF/suricata.git && \
         cd suricata && \
-        git clone https://github.com/OISF/libhtp.git
+            git clone https://github.com/OISF/libhtp.git && \
+        cd suricata-update && \
+            curl -L \
+            https://github.com/OISF/suricata-update/archive/master.tar.gz | \
+              tar zxvf - --strip-components=1
 
 WORKDIR /src/suricata
-
-RUN cd suricata-update && \
-        curl -L \
-        https://github.com/OISF/suricata-update/archive/master.tar.gz | \
-        tar zxvf - --strip-components=1
-
-RUN ./autogen.sh && ./configure \
+RUN ./autogen.sh
+RUN ./configure \
         --prefix=/usr \
         --disable-shared \
         --disable-march-native \
@@ -64,6 +65,9 @@ RUN make -j "${CORES}"
 RUN make install install-conf DESTDIR=/fakeroot
 
 FROM fedora:30
+
+RUN dnf -y update
+RUN dnf -y clean all
 
 RUN dnf -y install \
         file \
@@ -94,8 +98,6 @@ RUN dnf -y install \
         && dnf clean all
 
 COPY --from=0 /fakeroot /
-
-RUN dnf -y update && dnf -y clean all
 
 RUN cp -a /etc/suricata /etc/suricata.dist
 
