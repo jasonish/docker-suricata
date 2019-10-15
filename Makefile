@@ -1,5 +1,5 @@
 NAME :=	jasonish/suricata
-TAG :=	$(shell git rev-parse --abbrev-ref HEAD)
+TAG ?=	$(shell git rev-parse --abbrev-ref HEAD)
 
 CORES :=$(shell cat /proc/cpuinfo | grep ^processor | wc -l)
 
