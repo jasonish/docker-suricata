@@ -66,10 +66,7 @@ RUN make install install-conf DESTDIR=/fakeroot
 
 FROM fedora:30
 
-RUN dnf -y update
-RUN dnf -y clean all
-
-RUN dnf -y install \
+RUN dnf -y update && dnf -y install \
         file \
         findutils \
         hiredis \
