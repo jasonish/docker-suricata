@@ -18,3 +18,7 @@ push-version: VERSION = $(shell expr "`docker run jasonish/suricata:${TAG} -V`" 
 push-version: build
 	docker tag ${NAME}:${TAG} ${NAME}:${VERSION}
 	docker push ${NAME}:${VERSION}
+
+push:
+	$(MAKE) push-version
+	$(MAKE) push-branch
