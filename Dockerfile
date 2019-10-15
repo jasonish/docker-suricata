@@ -34,15 +34,15 @@ RUN dnf -y install \
         nss-softokn-devel \
         pcre-devel \
         pkgconfig \
-        python-devel \
-        python-yaml \
+        python3-devel \
+        python3-yaml \
         rust \
         which \
         zlib-devel
 
 WORKDIR /src
 
-ENV VERSION 4.1.5
+ENV VERSION 5.0.0
 RUN curl -OL https://www.openinfosecfoundation.org/download/suricata-${VERSION}.tar.gz
 RUN tar zxvf suricata-${VERSION}.tar.gz
 
@@ -87,7 +87,7 @@ RUN dnf -y install \
         nss \
         nss-softokn \
         pcre \
-        python-yaml \
+        python3-yaml \
         tcpdump \
         which \
         zlib \
