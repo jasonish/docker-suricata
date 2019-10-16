@@ -9,7 +9,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - run: basename "${GITHUB_REF}" > tag
       - run: echo ${{ secrets.DOCKER_TOKEN }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - run: TAG=$(cat tag) && make
-      - run: TAG=$(cat tag) && make push
+      - run: basename "${GITHUB_REF}" > tag
+      - name: Build image
+        run: |
+          for try in 1 2 3; do
+              if make TAG=$(cat tag); then
+                  exit 0
+              fi
+          done
+          exit 1
+      - name: Push image
+        run: make push TAG=$(cat tag)
