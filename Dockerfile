@@ -48,7 +48,7 @@ RUN git clone https://github.com/OISF/suricata.git && \
         cd suricata-update && \
             curl -L \
             https://github.com/OISF/suricata-update/archive/master.tar.gz | \
-              tar xf - --strip-components=1
+              tar zxf - --strip-components=1
 
 WORKDIR /src/suricata
 RUN ./autogen.sh
