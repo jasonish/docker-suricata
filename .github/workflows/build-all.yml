@@ -1,7 +1,6 @@
 name: build-all
 
 on:
-  push:
   schedule:
     - cron: 0 0 * * *
 
