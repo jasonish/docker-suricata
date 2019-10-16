@@ -44,7 +44,7 @@ WORKDIR /src
 
 ENV VERSION 5.0.0
 RUN curl -OL https://www.openinfosecfoundation.org/download/suricata-${VERSION}.tar.gz
-RUN tar zxvf suricata-${VERSION}.tar.gz
+RUN tar zxf suricata-${VERSION}.tar.gz
 
 WORKDIR /src/suricata-${VERSION}
 
