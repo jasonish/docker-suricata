@@ -14,5 +14,4 @@ clean:
 push-branch: build
 	docker push ${NAME}:${TAG}
 
-push:
-	$(MAKE) push-branch
+push: push-branch
