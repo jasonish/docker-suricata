@@ -3,7 +3,7 @@ name: build
 on:
   push:
   schedule:
-    - cron: 0 * * * *
+    - cron: 0 0 * * *
 
 jobs:
   build:
