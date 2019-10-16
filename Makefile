@@ -19,6 +19,4 @@ push-version: build
 	docker tag ${NAME}:${TAG} ${NAME}:${VERSION}
 	docker push ${NAME}:${VERSION}
 
-push:
-	$(MAKE) push-version
-	$(MAKE) push-branch
+push: build push-branch push-version
