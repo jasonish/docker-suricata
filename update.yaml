@@ -1,1 +1,1 @@
-reload-command: suricatasc -v -c reload-rules
+reload-command: suricatasc -c reload-rules
