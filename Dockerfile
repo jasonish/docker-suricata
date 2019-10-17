@@ -85,26 +85,35 @@ RUN dnf -y update && dnf -y install \
         nss-softokn \
         pcre \
         python-yaml \
+        sudo \
         tcpdump \
         which \
         zlib \
         && dnf clean all
 
 COPY --from=0 /fakeroot /
-
 COPY /update.yaml /etc/suricata/update.yaml
-RUN cp -a /etc/suricata /etc/suricata.dist
+COPY /docker-entrypoint.sh /
 
+# Setup to do as root.
+RUN useradd --system --create-home suricata && \
+        chown -R suricata:suricata /etc/suricata && \
+        chown -R suricata:suricata /var/log/suricata && \
+        mkdir /var/lib/suricata && \
+        chown -R suricata:suricata /var/lib/suricata && \
+        chown -R suricata:suricata /var/run/suricata && \
+        echo "suricata ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/suricata && \
+        cp -a /etc/suricata /etc/suricata.dist
+
+# Setup we can do as user suricata.
+USER suricata
 RUN suricata-update update-sources && \
         suricata-update enable-source oisf/trafficid && \
-        suricata-update --no-test --no-reload
+        suricata-update --no-test --no-reload && \
+        /usr/bin/suricata -V
 
 VOLUME /var/log/suricata
 VOLUME /var/lib/suricata
 VOLUME /etc/suricata
-
-RUN /usr/bin/suricata -V
-
-COPY /docker-entrypoint.sh /
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
