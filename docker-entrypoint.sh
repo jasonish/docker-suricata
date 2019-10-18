@@ -11,8 +11,9 @@ for src in /etc/suricata.dist/*; do
     dst="/etc/suricata/${filename}"
     if ! test -e "${dst}"; then
         echo "Creating ${dst}."
-        cp -a "${src}" "${dst}"
+        sudo cp -a "${src}" "${dst}"
     fi
+    sudo chown -R suricata:suricata /etc/suricata
 done
 
 has_caps="yes"
