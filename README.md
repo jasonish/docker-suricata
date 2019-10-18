@@ -92,6 +92,16 @@ The Suricata container exposes the following volumes:
 > Note: If `/etc/suricata` is a volume, it will be populated with a
 > default configuration from the container.
 
+If doing bind mounts you may want to have the Suricata user within the
+container match the UID and GID of a user on the host system. This can
+be done by setting the PUID and PGID environment variables. For
+example:
+
+    docker run -e PUID=$(id -u) -e PGID=$(id-u)
+    
+which will result in the bind mounts being owned by the user starting
+the Docker container.
+
 ## Configuration
 
 The easiest way to provide Suricata a custom configuration is to use a
@@ -132,7 +142,7 @@ In one terminal, start Suricata:
 
 Then in another terminal:
 
-    docker exec -it suricata suricata-update -f
+    docker exec -it --user suricata suricata suricata-update -f
 
 The will execute `suricata-update` in the same container that is
 running Suricata (note `--name=suricata`), then signal Suricata to
