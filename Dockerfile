@@ -99,22 +99,18 @@ COPY --from=0 /fakeroot /
 COPY /update.yaml /etc/suricata/update.yaml
 COPY /docker-entrypoint.sh /
 
-# Setup to do as root.
-RUN useradd --system --create-home suricata && \
-        chown -R suricata:suricata /etc/suricata && \
-        chown -R suricata:suricata /var/log/suricata && \
-        mkdir /var/lib/suricata && \
-        chown -R suricata:suricata /var/lib/suricata && \
-        chown -R suricata:suricata /var/run/suricata && \
-        echo "suricata ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/suricata && \
-        cp -a /etc/suricata /etc/suricata.dist
-
-# Setup we can do as user suricata.
-USER suricata
 RUN suricata-update update-sources && \
         suricata-update enable-source oisf/trafficid && \
         suricata-update --no-test --no-reload && \
         /usr/bin/suricata -V
+
+RUN useradd --system --create-home suricata && \
+        chown -R suricata:suricata /etc/suricata && \
+        chown -R suricata:suricata /var/log/suricata && \
+        chown -R suricata:suricata /var/lib/suricata && \
+        chown -R suricata:suricata /var/run/suricata && \
+        echo "suricata ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/suricata && \
+        cp -a /etc/suricata /etc/suricata.dist
 
 VOLUME /var/log/suricata
 VOLUME /var/lib/suricata

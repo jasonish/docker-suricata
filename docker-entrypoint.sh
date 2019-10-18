@@ -1,9 +1,26 @@
 #! /bin/bash
 
+fix_perms() {
+    if [[ "${PGID}" ]]; then
+        groupmod -o -g "${PGID}" suricata
+    fi
+
+    if [[ "${PUID}" ]]; then
+        usermod -o -u "${PUID}" suricata
+    fi
+
+    chown -R suricata:suricata /etc/suricata
+    chown -R suricata:suricata /var/lib/suricata
+    chown -R suricata:suricata /var/log/suricata
+    chown -R suricata:suricata /var/run/suricata
+}
+
+fix_perms
+
 # If the first command does not look like argument, assume its a
 # command the user wants to run. Normally I wouldn't do this.
 if [ "${1:0:1}" != "-" ]; then
-    exec "$@"
+    exec sudo -u suricata "$@"
 fi
 
 for src in /etc/suricata.dist/*; do
@@ -11,9 +28,9 @@ for src in /etc/suricata.dist/*; do
     dst="/etc/suricata/${filename}"
     if ! test -e "${dst}"; then
         echo "Creating ${dst}."
-        sudo cp -a "${src}" "${dst}"
+        cp -a "${src}" "${dst}"
     fi
-    sudo chown -R suricata:suricata /etc/suricata
+    chown -R suricata:suricata /etc/suricata
 done
 
 has_caps="yes"
@@ -41,7 +58,8 @@ args=()
 if [[ "${has_caps}" != "yes" ]]; then
     echo "Warning: running as root due to missing capabilities" > /dev/stderr
 else
+    fix_perms
     args=(--user suricata --group suricata)
 fi
 
-exec sudo /usr/bin/suricata "${args[@]}" $@
+exec /usr/bin/suricata "${args[@]}" $@
