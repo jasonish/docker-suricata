@@ -17,7 +17,7 @@ jobs:
       - name: Build image
         run: |
           for try in 1 2 3; do
-              if make push TAG="5.0"; then
+              if make push TAG="master"; then
                   exit 0
               fi
           done
