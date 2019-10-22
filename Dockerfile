@@ -83,11 +83,13 @@ RUN dnf -y update && dnf -y install \
         libmaxminddb \
         libpcap \
         libprelude \
+        logrotate \
         lz4 \
         net-tools \
         nss \
         nss-softokn \
         pcre \
+        procps-ng \
         python3-yaml \
         sudo \
         tcpdump \
@@ -98,6 +100,7 @@ RUN dnf -y update && dnf -y install \
 COPY --from=0 /fakeroot /
 COPY /update.yaml /etc/suricata/update.yaml
 COPY /docker-entrypoint.sh /
+COPY /suricata.logrotate /etc/logrotate.d/suricata
 
 RUN suricata-update update-sources && \
         suricata-update enable-source oisf/trafficid && \
@@ -110,7 +113,8 @@ RUN useradd --system --create-home suricata && \
         chown -R suricata:suricata /var/lib/suricata && \
         chown -R suricata:suricata /var/run/suricata && \
         echo "suricata ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/suricata && \
-        cp -a /etc/suricata /etc/suricata.dist
+        cp -a /etc/suricata /etc/suricata.dist && \
+        chmod 600 /etc/logrotate.d/suricata
 
 VOLUME /var/log/suricata
 VOLUME /var/lib/suricata
