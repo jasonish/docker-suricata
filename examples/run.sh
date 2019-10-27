@@ -9,4 +9,4 @@ docker run --rm -it \
        --cap-add=sys_nice \
        --cap-add=net_admin \
        --net=host \
-       jasonish/suricata:5.0 $@
+       jasonish/suricata:master $@
