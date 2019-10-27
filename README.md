@@ -147,3 +147,14 @@ Then in another terminal:
 The will execute `suricata-update` in the same container that is
 running Suricata (note `--name=suricata`), then signal Suricata to
 reload its rules with `suricatasc -c reload-rules`.
+
+## Tools
+
+### run-pcapfile.py
+
+Run Suricata on a pcap file using a local pcap file and logging to a
+local directory.
+
+Example:
+
+    ./tools/run-pcapfile.py -r /path/to/input.pcap -l ./log -- -k none
