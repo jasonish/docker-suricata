@@ -15,14 +15,6 @@ fix_perms() {
     chown -R suricata:suricata /var/run/suricata
 }
 
-fix_perms
-
-# If the first command does not look like argument, assume its a
-# command the user wants to run. Normally I wouldn't do this.
-if [ $# -gt 0 -a "${1:0:1}" != "-" ]; then
-    exec sudo -u suricata "$@"
-fi
-
 for src in /etc/suricata.dist/*; do
     filename=$(basename ${src})
     dst="/etc/suricata/${filename}"
@@ -32,6 +24,14 @@ for src in /etc/suricata.dist/*; do
     fi
     chown -R suricata:suricata /etc/suricata
 done
+
+fix_perms
+
+# If the first command does not look like argument, assume its a
+# command the user wants to run. Normally I wouldn't do this.
+if [ $# -gt 0 -a "${1:0:1}" != "-" ]; then
+    exec sudo -u suricata "$@"
+fi
 
 has_caps="yes"
 
