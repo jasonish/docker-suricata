@@ -51,7 +51,7 @@ WORKDIR /src/suricata-${VERSION}
 RUN ./configure \
         --prefix=/usr \
         --disable-shared \
-        --disable-march-native \
+        --disable-gccmarch-native \
         --enable-lua
 
 ARG CORES=1
