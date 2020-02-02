@@ -40,6 +40,8 @@ RUN dnf -y install \
         which \
         zlib-devel
 
+RUN cargo install --root /usr/local cbindgen
+
 WORKDIR /src
 
 RUN git clone https://github.com/OISF/suricata.git && \
