@@ -1,4 +1,4 @@
-FROM fedora:30
+FROM fedora:31
 
 RUN dnf -y update
 
@@ -60,7 +60,7 @@ RUN make -j "${CORES}"
 
 RUN make install install-conf DESTDIR=/fakeroot
 
-FROM fedora:30
+FROM fedora:31
 
 RUN dnf -y update && dnf -y install \
         file \
