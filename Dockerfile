@@ -42,7 +42,7 @@ RUN dnf -y install \
 
 WORKDIR /src
 
-ENV VERSION 4.1.6
+ENV VERSION 4.1.7
 RUN curl -OL https://www.openinfosecfoundation.org/download/suricata-${VERSION}.tar.gz
 RUN tar zxf suricata-${VERSION}.tar.gz
 
