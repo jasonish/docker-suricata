@@ -10,7 +10,7 @@ DEFAULT_DOCKER_IMAGE = "jasonish/suricata:master"
 EPILOG = """
 Extra arguments can be passed to Suricata with --: For example:
 
-    ./run-pcapfile.py -r input.pcap -- --no-checksum
+    ./run-pcapfile.py -r input.pcap -- -k none
 """
 
 def ferror(msg):
@@ -31,7 +31,7 @@ def main():
         help="PCAP file to read")
 
     parser.add_argument(
-        "-v", metavar="VOL", default=[], nargs="+", dest="volumes",
+        "-v", metavar="VOL", action="append", dest="volumes",
         help="Additional volumes")
 
     parser.add_argument(
@@ -42,7 +42,6 @@ def main():
         "remainder", nargs=argparse.REMAINDER, help=argparse.SUPPRESS)
 
     args = parser.parse_args()
-    print(args)
 
     docker_args = [
         "docker",
@@ -54,6 +53,7 @@ def main():
     for volume in args.volumes:
         src, target = volume.split(":", 1)
         abs_src = os.path.abspath(src)
+        print("Volume: {}:{}".format(abs_src, target))
         docker_args.append("--volume={}:{}".format(abs_src, target))
 
     suricata_args = []
