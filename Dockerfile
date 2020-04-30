@@ -34,8 +34,8 @@ RUN dnf -y install \
         nss-softokn-devel \
         pcre-devel \
         pkgconfig \
-        python-devel \
-        python-yaml \
+        python3-devel \
+        python3-yaml \
         rust \
         which \
         zlib-devel
@@ -86,7 +86,7 @@ RUN dnf -y update && dnf -y install \
         nss-softokn \
         pcre \
         procps-ng \
-        python-yaml \
+        python3-yaml \
         sudo \
         tcpdump \
         which \
