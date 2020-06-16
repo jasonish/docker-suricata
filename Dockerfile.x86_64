@@ -1,4 +1,4 @@
-FROM fedora:31
+FROM fedora:31 AS builder
 
 RUN dnf -y update
 
@@ -42,7 +42,7 @@ RUN dnf -y install \
 
 WORKDIR /src
 
-ENV VERSION 5.0.3
+ARG VERSION
 RUN curl -OL https://www.openinfosecfoundation.org/download/suricata-${VERSION}.tar.gz
 RUN tar zxf suricata-${VERSION}.tar.gz
 
@@ -54,13 +54,13 @@ RUN ./configure \
         --disable-gccmarch-native \
         --enable-lua
 
-ARG CORES=1
+ARG CORES=2
 
 RUN make -j "${CORES}"
 
 RUN make install install-conf DESTDIR=/fakeroot
 
-FROM fedora:31
+FROM fedora:31 AS runner
 
 RUN dnf -y update && dnf -y install \
         file \
@@ -87,15 +87,14 @@ RUN dnf -y update && dnf -y install \
         pcre \
         procps-ng \
         python3-yaml \
-        sudo \
         tcpdump \
         which \
         zlib \
         && dnf clean all
 
 COPY --from=0 /fakeroot /
+
 COPY /update.yaml /etc/suricata/update.yaml
-COPY /docker-entrypoint.sh /
 COPY /suricata.logrotate /etc/logrotate.d/suricata
 
 RUN suricata-update update-sources && \
@@ -108,7 +107,6 @@ RUN useradd --system --create-home suricata && \
         chown -R suricata:suricata /var/log/suricata && \
         chown -R suricata:suricata /var/lib/suricata && \
         chown -R suricata:suricata /var/run/suricata && \
-        echo "suricata ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/suricata && \
         cp -a /etc/suricata /etc/suricata.dist && \
         chmod 600 /etc/logrotate.d/suricata
 
@@ -116,4 +114,8 @@ VOLUME /var/log/suricata
 VOLUME /var/lib/suricata
 VOLUME /etc/suricata
 
+COPY /docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
+
+ARG BUILD_DATE
+RUN echo "${BUILD_DATE}" > /etc/build_date
