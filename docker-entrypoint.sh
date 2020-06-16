@@ -1,4 +1,6 @@
-#! /bin/bash
+#! /bin/sh
+
+set -e
 
 fix_perms() {
     if [[ "${PGID}" ]]; then
@@ -22,18 +24,15 @@ for src in /etc/suricata.dist/*; do
         echo "Creating ${dst}."
         cp -a "${src}" "${dst}"
     fi
-    chown -R suricata:suricata /etc/suricata
 done
-
-fix_perms
 
 # If the first command does not look like argument, assume its a
 # command the user wants to run. Normally I wouldn't do this.
 if [ $# -gt 0 -a "${1:0:1}" != "-" ]; then
-    exec sudo -u suricata "$@"
+    exec $@
 fi
 
-has_caps="yes"
+run_as_user="yes"
 
 check_for_cap() {
     echo -n "Checking for capability $1: "
@@ -46,20 +45,22 @@ check_for_cap() {
     fi
 }
 
-if ! check_for_cap cap_sys_nice; then
-    has_caps="no"
+if ! check_for_cap sys_nice; then
+    echo "Warning: no sys_nice capability, use --cap-add sys_nice"
+    run_as_user="no"
 fi
-if ! check_for_cap cap_net_admin; then
-    has_caps="no"
+if ! check_for_cap net_admin; then
+    echo "Warning: no net_admin capability, use --cap-add net_admin"
+    run_as_user="no"
 fi
 
-args=()
+ARGS=""
 
-if [[ "${has_caps}" != "yes" ]]; then
+if [[ "${run_as_user}" != "yes" ]]; then
     echo "Warning: running as root due to missing capabilities" > /dev/stderr
 else
     fix_perms
-    args=(--user suricata --group suricata)
+    ARGS="${ARGS} --user suricata --group suricata"
 fi
 
-exec /usr/bin/suricata "${args[@]}" $@
+exec /usr/bin/suricata ${ARGS} $@

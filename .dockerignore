@@ -1,1 +1,5 @@
-etc
+/Dockerfile*
+/Makefile
+/etc
+/build.sh
+*~
