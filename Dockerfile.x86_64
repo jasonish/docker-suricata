@@ -42,7 +42,7 @@ RUN dnf -y install \
 
 WORKDIR /src
 
-ARG VERSION
+ARG VERSION=5.0.3
 RUN curl -OL https://www.openinfosecfoundation.org/download/suricata-${VERSION}.tar.gz
 RUN tar zxf suricata-${VERSION}.tar.gz
 
@@ -59,6 +59,10 @@ ARG CORES=2
 RUN make -j "${CORES}"
 
 RUN make install install-conf DESTDIR=/fakeroot
+
+# Something about the Docker mounts won't let us copy /var/run in the
+# next stage.
+RUN rm -rf /fakeroot/var
 
 FROM fedora:31 AS runner
 
@@ -93,6 +97,9 @@ RUN dnf -y update && dnf -y install \
         && dnf clean all
 
 COPY --from=builder /fakeroot /
+
+# Create the directories that didn't get coped from the previous stage.
+RUN mkdir -p /var/log/suricata /var/run/suricata
 
 COPY /update.yaml /etc/suricata/update.yaml
 COPY /suricata.logrotate /etc/logrotate.d/suricata

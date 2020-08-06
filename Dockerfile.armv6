@@ -1,4 +1,7 @@
-FROM alpine@sha256:c929c5ca1d3f793bfdd2c6d6d9210e2530f1184c0f488f514f1bb8080bb1e82b AS builder
+# Alpine linux/arm/v6 as of 2020-08-05
+ARG BASE_IMAGE=alpine@sha256:71465c7d45a086a2181ce33bb47f7eaef5c233eace65704da0c5e5454a79cee5
+
+FROM $BASE_IMAGE AS builder
 
 RUN apk add \
         automake \
@@ -53,11 +56,11 @@ RUN make -j "${CORES}"
 
 RUN make install install-conf DESTDIR=/fakeroot
 
-# On Alpine Linux, this won't successfully copy in the next stage. Its
-# just empty directories though.
+# Something about the Docker mounts won't let us copy /var/run in the
+# next stage.
 RUN rm -rf /fakeroot/var
 
-FROM alpine@sha256:c929c5ca1d3f793bfdd2c6d6d9210e2530f1184c0f488f514f1bb8080bb1e82b AS runner
+FROM $BASE_IMAGE AS runner
 
 RUN apk add \
         hiredis \
