@@ -62,7 +62,7 @@ else
     args=(--user suricata --group suricata)
 fi
 
-if [[-n "$SURICATA_OPTIONS"]]
+if [[-n "$SURICATA_OPTIONS"]]; then
     exec /usr/bin/suricata "${args[@]}" $@ $SURICATA_OPTIONS
 else
     exec /usr/bin/suricata "${args[@]}" $@
