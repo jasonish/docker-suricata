@@ -77,7 +77,7 @@ RUN apk add \
         yaml \
         zlib
 
-COPY --from=0 /fakeroot /
+COPY --from=builder /fakeroot /
 
 # Create the directories that didn't get coped from the previous stage.
 RUN mkdir -p /var/log/suricata /var/run/suricata

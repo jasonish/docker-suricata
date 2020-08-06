@@ -92,7 +92,7 @@ RUN dnf -y update && dnf -y install \
         zlib \
         && dnf clean all
 
-COPY --from=0 /fakeroot /
+COPY --from=builder /fakeroot /
 
 COPY /update.yaml /etc/suricata/update.yaml
 COPY /suricata.logrotate /etc/logrotate.d/suricata
