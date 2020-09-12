@@ -1,53 +1,40 @@
-FROM fedora:31 AS builder
+FROM arm32v6/alpine:latest AS builder
 
-RUN dnf -y update
-
-RUN dnf -y install \
-        autoconf \
+RUN apk add \
         automake \
+        autoconf \
         cargo \
-        file \
-        file-devel \
+        cbindgen \
+        curl \
+        elfutils-dev \
+        file-dev \
         gcc \
-        gcc-c++ \
         git \
-        hiredis-devel \
-        hyperscan-devel \
-        jansson-devel \
-        jq \
-        lua-devel \
+        hiredis-dev \
+        jansson-dev \
+        libpcap-dev \
+        libelf \
+        libbpf-dev \
+        libnetfilter_queue-dev \
+        libnetfilter_log-dev \
         libtool \
-        libyaml-devel \
-        libnfnetlink-devel \
-        libnetfilter_queue-devel \
-        libnet-devel \
-        libcap-ng-devel \
-        libevent-devel \
-        libmaxminddb-devel \
-        libpcap-devel \
-        libprelude-devel \
-        libtool \
-        lz4-devel \
+        linux-headers \
+        libcap-ng-dev \
         make \
-        nspr-devel \
-        nss-devel \
-        nss-softokn-devel \
-        pcre-devel \
-        pkgconfig \
-        python3-devel \
-        python3-yaml \
+        musl-dev \
+        nss-dev \
+        patch \
+        pcre-dev \
+        python3 \
+        py3-yaml \
         rust \
-        which \
-        zlib-devel
-
-RUN cargo install --root /usr/local cbindgen
+        yaml-dev \
+        zlib-dev
 
 WORKDIR /src
-
-RUN git clone https://github.com/OISF/suricata.git && \
-        cd suricata && \
-            git clone https://github.com/OISF/libhtp.git && \
-        cd suricata-update && \
+RUN git clone https://github.com/OISF/suricata.git
+RUN git clone https://github.com/OISF/libhtp.git suricata/libhtp
+RUN cd suricata/suricata-update && \
             curl -L \
             https://github.com/OISF/suricata-update/archive/master.tar.gz | \
               tar zxf - --strip-components=1
@@ -55,11 +42,16 @@ RUN git clone https://github.com/OISF/suricata.git && \
 WORKDIR /src/suricata
 
 RUN ./autogen.sh
+
 RUN ./configure \
         --prefix=/usr \
+        --sysconfdir=/etc \
+        --localstatedir=/var \
         --disable-shared \
         --disable-gccmarch-native \
-        --enable-lua
+        --enable-ebpf \
+        --enable-nfqueue \
+        --enable-hiredis
 
 ARG CORES=2
 
@@ -71,37 +63,25 @@ RUN make install install-conf DESTDIR=/fakeroot
 # next stage.
 RUN rm -rf /fakeroot/var
 
-FROM fedora:31 AS runner
+FROM arm32v6/alpine:latest AS runner
 
-RUN dnf -y update && dnf -y install \
-        file \
-        findutils \
+RUN apk add \
         hiredis \
-        hyperscan \
-        iproute \
         jansson \
-        lua-libs \
-        libyaml \
-        libnfnetlink \
-        libnetfilter_queue \
-        libnet \
+        libcap \
         libcap-ng \
-        libevent \
-        libmaxminddb \
         libpcap \
-        libprelude \
-        logrotate \
-        lz4 \
-        net-tools \
+        libelf \
+        libbpf \
+        libnetfilter_queue \
+        libnetfilter_log \
+        libmagic \
         nss \
-        nss-softokn \
         pcre \
-        procps-ng \
-        python3-yaml \
-        tcpdump \
-        which \
-        zlib \
-        && dnf clean all
+        py3-yaml \
+        python3 \
+        yaml \
+        zlib
 
 COPY --from=builder /fakeroot /
 
@@ -116,7 +96,8 @@ RUN suricata-update update-sources && \
         suricata-update --no-test --no-reload && \
         /usr/bin/suricata -V
 
-RUN useradd --system --create-home suricata && \
+RUN addgroup suricata && \
+        adduser -S -G suricata suricata && \
         chown -R suricata:suricata /etc/suricata && \
         chown -R suricata:suricata /var/log/suricata && \
         chown -R suricata:suricata /var/lib/suricata && \
