@@ -70,13 +70,12 @@ if [ "${push}" = "yes" ]; then
         docker push ${NAME}:${VERSION}-amd64
         docker push ${NAME}:${VERSION}-arm32v6
         
+        # Create and push the manfest for the version.
         docker manifest create ${NAME}:${VERSION} \
                -a ${NAME}:${VERSION}-amd64 \
                -a ${NAME}:${VERSION}-arm32v6       
-        
         docker manifest annotate --arch arm --variant v6 \
                ${NAME}:${VERSION} ${NAME}:${VERSION}-arm32v6
-        
         docker manifest push --purge ${NAME}:${VERSION}
     else
         echo "error: push no implemented for ${builder}"

@@ -23,7 +23,6 @@ RUN apk add \
         make \
         musl-dev \
         nss-dev \
-        patch \
         pcre-dev \
         python3 \
         py3-yaml \
@@ -32,6 +31,7 @@ RUN apk add \
         zlib-dev
 
 WORKDIR /src
+
 RUN git clone https://github.com/OISF/suricata.git
 RUN git clone https://github.com/OISF/libhtp.git suricata/libhtp
 RUN cd suricata/suricata-update && \
