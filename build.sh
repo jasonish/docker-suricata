@@ -66,33 +66,52 @@ ${builder} ${build_command} \
            -f Dockerfile.alpine-arm32v6 \
            .
 
+${builder} ${build_command} \
+           ${build_opts} ${no_cache} \
+           --rm \
+           --build-arg CORES="${cores}" \
+           --tag ${NAME}:${VERSION}-arm64v8 \
+           -f Dockerfile.alpine-arm64v8 \
+           .
+
 if [ "${push}" = "yes" ]; then
     if [ "${builder}" = "docker" ]; then
         docker push ${NAME}:${VERSION}-amd64
         docker push ${NAME}:${VERSION}-arm32v6
+        docker push ${NAME}:${VERSION}-arm64v8
         
         # Create and push the manfest for the version.
+        echo "Creating manifest: ${NAME}:${VERSION}"
         docker manifest create ${NAME}:${VERSION} \
                -a ${NAME}:${VERSION}-amd64 \
-               -a ${NAME}:${VERSION}-arm32v6       
+               -a ${NAME}:${VERSION}-arm32v6 \
+               -a ${NAME}:${VERSION}-arm64v8
         docker manifest annotate --arch arm --variant v6 \
                ${NAME}:${VERSION} ${NAME}:${VERSION}-arm32v6
+        docker manifest annotate --arch arm --variant v8 \
+               ${NAME}:${VERSION} ${NAME}:${VERSION}-arm64v8
         docker manifest push --purge ${NAME}:${VERSION}
 
         # Create and push the manifest for the major version.
         docker manifest create ${NAME}:${MAJOR} \
                -a ${NAME}:${VERSION}-amd64 \
-               -a ${NAME}:${VERSION}-arm32v6       
+               -a ${NAME}:${VERSION}-arm32v6 \
+               -a ${NAME}:${VERSION}-arm64v8
         docker manifest annotate --arch arm --variant v6 \
                ${NAME}:${MAJOR} ${NAME}:${VERSION}-arm32v6
+        docker manifest annotate --arch arm --variant v8 \
+               ${NAME}:${MAJOR} ${NAME}:${VERSION}-arm64v8
         docker manifest push --purge ${NAME}:${MAJOR}
 
         if test -e ./latest; then
             docker manifest create ${NAME}:latest \
                    -a ${NAME}:${VERSION}-amd64 \
-                   -a ${NAME}:${VERSION}-arm32v6       
+                   -a ${NAME}:${VERSION}-arm32v6 \
+                   -a ${NAME}:${VERSION}-arm64v8
             docker manifest annotate --arch arm --variant v6 \
                    ${NAME}:latest ${NAME}:${VERSION}-arm32v6
+            docker manifest annotate --arch arm --variant v8 \
+                   ${NAME}:latest ${NAME}:${VERSION}-arm64v8
             docker manifest push --purge ${NAME}:latest
         fi
     else
