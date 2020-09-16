@@ -1,6 +1,4 @@
-ARG BASE_IMAGE=arm32v6/alpine:latest
-
-FROM $BASE_IMAGE AS builder
+FROM arm32v6/alpine:latest AS builder
 
 RUN apk add \
         automake \
@@ -33,7 +31,8 @@ RUN apk add \
 
 WORKDIR /src
 
-ARG VERSION
+ARG VERSION=5.0.3
+
 RUN curl -OL https://www.openinfosecfoundation.org/download/suricata-${VERSION}.tar.gz
 RUN tar zxf suricata-${VERSION}.tar.gz
 
@@ -59,7 +58,7 @@ RUN make install install-conf DESTDIR=/fakeroot
 # next stage.
 RUN rm -rf /fakeroot/var
 
-FROM $BASE_IMAGE AS runner
+FROM arm32v6/alpine:latest AS runner
 
 RUN apk add \
         hiredis \
@@ -105,11 +104,5 @@ VOLUME /var/log/suricata
 VOLUME /var/lib/suricata
 VOLUME /etc/suricata
 
-ARG BUILD_DATE
-RUN echo "${BUILD_DATE}" > /etc/build_date
-
 COPY /docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
-
-ARG BUILD_DATE
-RUN echo "${BUILD_DATE}" > /etc/build_date
