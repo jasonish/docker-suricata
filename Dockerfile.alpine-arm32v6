@@ -71,6 +71,7 @@ RUN apk add \
         libnetfilter_queue \
         libnetfilter_log \
         libmagic \
+        logrotate \
         nss \
         pcre \
         py3-yaml \
