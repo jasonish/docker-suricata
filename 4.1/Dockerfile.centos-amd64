@@ -42,9 +42,10 @@ RUN dnf -y install \
         which \
         zlib-devel
 
+ARG VERSION
+
 WORKDIR /src
 
-ARG VERSION=4.1.8
 RUN curl -OL https://www.openinfosecfoundation.org/download/suricata-${VERSION}.tar.gz
 RUN tar zxf suricata-${VERSION}.tar.gz
 

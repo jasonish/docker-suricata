@@ -5,7 +5,7 @@ set -x
 
 NAME="jasonish/suricata"
 MAJOR="4.1"
-VERSION="4.1.8"
+VERSION=$(cat VERSION)
 
 if [ "${HOST}" != "" ]; then
     NAME="${HOST}/${NAME}"
@@ -53,6 +53,7 @@ fi
 ${builder} ${build_command} \
            ${build_opts} ${no_cache} \
            --rm \
+	   --build-arg VERSION="${VERSION}" \
            --build-arg CORES="${cores}" \
            --tag ${NAME}:${VERSION}-amd64 \
            -f Dockerfile.centos-amd64 \
@@ -61,6 +62,7 @@ ${builder} ${build_command} \
 ${builder} ${build_command} \
            ${build_opts} ${no_cache} \
            --rm \
+	   --build-arg VERSION="${VERSION}" \
            --build-arg CORES="${cores}" \
            --tag ${NAME}:${VERSION}-arm32v6 \
            -f Dockerfile.alpine-arm32v6 \
