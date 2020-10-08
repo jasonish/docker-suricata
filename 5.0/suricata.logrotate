@@ -1,0 +1,10 @@
+/var/log/suricata/*.log /var/log/suricata/*.json {
+    daily
+    missingok
+    rotate 3
+    nocompress
+    sharedscripts
+    postrotate
+        suricatasc -c reopen-log-files
+    endscript
+}
