@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  build:
+  build-master:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
@@ -16,3 +16,34 @@ jobs:
         with:
           version: latest
       - run: ./build.sh
+        working-directory: master
+  build-6-0:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      # This enables the ability to execute Arm binaries for us.
+      - uses: crazy-max/ghaction-docker-buildx@v3
+        with:
+          version: latest
+      - run: ./build.sh
+        working-directory: "6.0"
+  build-5-0:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      # This enables the ability to execute Arm binaries for us.
+      - uses: crazy-max/ghaction-docker-buildx@v3
+        with:
+          version: latest
+      - run: ./build.sh
+        working-directory: "5.0"
+  build-4-1:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      # This enables the ability to execute Arm binaries for us.
+      - uses: crazy-max/ghaction-docker-buildx@v3
+        with:
+          version: latest
+      - run: ./build.sh
+        working-directory: "4.1"
