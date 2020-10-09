@@ -29,9 +29,9 @@ RUN apk add \
         yaml-dev \
         zlib-dev
 
-WORKDIR /src
+ARG VERSION
 
-ARG VERSION=5.0.3
+WORKDIR /src
 
 RUN curl -OL https://www.openinfosecfoundation.org/download/suricata-${VERSION}.tar.gz
 RUN tar zxf suricata-${VERSION}.tar.gz
