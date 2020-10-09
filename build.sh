@@ -4,8 +4,9 @@ set -e
 set -x
 
 NAME="jasonish/suricata"
-MAJOR="5.0"
+MAJOR=$(basename $(pwd))
 VERSION=$(cat VERSION)
+LATEST=$(cat ../LATEST)
 
 if [ "${HOST}" != "" ]; then
     NAME="${HOST}/${NAME}"
@@ -106,7 +107,7 @@ if [ "${push}" = "yes" ]; then
                ${NAME}:${MAJOR} ${NAME}:${VERSION}-arm64v8
         docker manifest push --purge ${NAME}:${MAJOR}
 
-        if test -e ./latest; then
+        if [ "${MAJOR}" = "${LATEST}" ]; then
             docker manifest create ${NAME}:latest \
                    -a ${NAME}:${VERSION}-amd64 \
                    -a ${NAME}:${VERSION}-arm32v6 \
