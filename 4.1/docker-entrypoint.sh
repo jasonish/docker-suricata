@@ -63,4 +63,4 @@ else
     ARGS="${ARGS} --user suricata --group suricata"
 fi
 
-exec /usr/bin/suricata ${ARGS} $@
+exec /usr/bin/suricata ${ARGS} ${SURICATA_OPTIONS} $@
