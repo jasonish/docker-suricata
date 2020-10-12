@@ -42,21 +42,27 @@ RUN dnf -y install \
         which \
         zlib-devel
 
-RUN cargo install --root /usr/local cbindgen
+ARG VERSION
+
+RUN if [ "${VERSION}" = "master" ]; then \
+        cargo install --root /usr/local cbindgen; \
+fi
 
 WORKDIR /src
 
-RUN git clone https://github.com/OISF/suricata.git && \
-        cd suricata && \
-            git clone https://github.com/OISF/libhtp.git && \
-        cd suricata-update && \
-            curl -L \
-            https://github.com/OISF/suricata-update/archive/master.tar.gz | \
-              tar zxf - --strip-components=1
+RUN if [ "${VERSION}" = "master" ]; then \
+	git clone https://github.com/OISF/suricata.git suricata-${VERSION}; \
+	git clone https://github.com/OISF/libhtp.git suricata-${VERSION}/libhtp; \
+        (cd suricata-${VERSION}/suricata-update && \
+		curl -L https://github.com/OISF/suricata-update/archive/master.tar.gz | tar zxf - --strip-components=1); \
+	(cd suricata-${VERSION} && ./autogen.sh); \
+else \
+	curl -OL https://www.openinfosecfoundation.org/download/suricata-${VERSION}.tar.gz; \
+	tar zxf suricata-${VERSION}.tar.gz; \
+fi
 
-WORKDIR /src/suricata
+WORKDIR /src/suricata-${VERSION}
 
-RUN ./autogen.sh
 RUN ./configure \
         --prefix=/usr \
         --disable-shared \

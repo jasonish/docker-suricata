@@ -30,18 +30,22 @@ RUN apk add \
         yaml-dev \
         zlib-dev
 
+ARG VERSION
+
 WORKDIR /src
 
-RUN git clone https://github.com/OISF/suricata.git
-RUN git clone https://github.com/OISF/libhtp.git suricata/libhtp
-RUN cd suricata/suricata-update && \
-            curl -L \
-            https://github.com/OISF/suricata-update/archive/master.tar.gz | \
-              tar zxf - --strip-components=1
+RUN if [ "${VERSION}" = "master" ]; then \
+	git clone https://github.com/OISF/suricata.git suricata-${VERSION}; \
+	git clone https://github.com/OISF/libhtp.git suricata-${VERSION}/libhtp; \
+        (cd suricata-${VERSION}/suricata-update && \
+		curl -L https://github.com/OISF/suricata-update/archive/master.tar.gz | tar zxf - --strip-components=1); \
+	(cd suricata-${VERSION} && ./autogen.sh); \
+else \
+	curl -OL https://www.openinfosecfoundation.org/download/suricata-${VERSION}.tar.gz; \
+	tar zxf suricata-${VERSION}.tar.gz; \
+fi
 
-WORKDIR /src/suricata
-
-RUN ./autogen.sh
+WORKDIR /src/suricata-${VERSION}
 
 RUN ./configure \
         --prefix=/usr \
@@ -76,6 +80,7 @@ RUN apk add \
         libnetfilter_queue \
         libnetfilter_log \
         libmagic \
+        logrotate \
         nss \
         pcre \
         py3-yaml \

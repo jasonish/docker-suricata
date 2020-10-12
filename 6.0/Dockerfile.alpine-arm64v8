@@ -4,6 +4,7 @@ RUN apk add \
         automake \
         autoconf \
         cargo \
+        cbindgen \
         curl \
         elfutils-dev \
         file-dev \
@@ -33,8 +34,16 @@ ARG VERSION
 
 WORKDIR /src
 
-RUN curl -OL https://www.openinfosecfoundation.org/download/suricata-${VERSION}.tar.gz
-RUN tar zxf suricata-${VERSION}.tar.gz
+RUN if [ "${VERSION}" = "master" ]; then \
+	git clone https://github.com/OISF/suricata.git suricata-${VERSION}; \
+	git clone https://github.com/OISF/libhtp.git suricata-${VERSION}/libhtp; \
+        (cd suricata-${VERSION}/suricata-update && \
+		curl -L https://github.com/OISF/suricata-update/archive/master.tar.gz | tar zxf - --strip-components=1); \
+	(cd suricata-${VERSION} && ./autogen.sh); \
+else \
+	curl -OL https://www.openinfosecfoundation.org/download/suricata-${VERSION}.tar.gz; \
+	tar zxf suricata-${VERSION}.tar.gz; \
+fi
 
 WORKDIR /src/suricata-${VERSION}
 
