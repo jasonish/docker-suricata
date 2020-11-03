@@ -8,6 +8,7 @@ RUN dnf -y install \
         autoconf \
         automake \
         cargo \
+        diffutils \
         file \
         file-devel \
         gcc \
@@ -67,7 +68,8 @@ RUN ./configure \
         --prefix=/usr \
         --disable-shared \
         --disable-gccmarch-native \
-        --enable-lua
+        --enable-lua \
+	--enable-nfqueue
 
 ARG CORES=2
 
