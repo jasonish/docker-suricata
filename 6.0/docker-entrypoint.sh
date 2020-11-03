@@ -2,6 +2,10 @@
 
 set -e
 
+if [ "${TRACE}" != "" ]; then
+    set -x
+fi
+
 fix_perms() {
     if [[ "${PGID}" ]]; then
         groupmod -o -g "${PGID}" suricata
