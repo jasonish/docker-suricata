@@ -150,11 +150,28 @@ reload its rules with `suricatasc -c reload-rules`.
 
 ## Tools
 
-### run-pcapfile.py
+### ./wrapper.py
 
-Run Suricata on a pcap file using a local pcap file and logging to a
-local directory.
+`wrapper.py` is a script that wraps Suricata-in-Docker for use on the command
+line as if it was installed locally.
 
-Example:
+`wrapper.py` has its own arguments that can be seen by running `wrapper.py -h`.
+Arguments that occur after `--` are Suricata arguments and are passed directly
+to Suricata (most of the time). The Suricata arguments are preprocessed to setup
+any required volumes to provide the appearance that Suricata is running
+directly.
 
-    ./tools/run-pcapfile.py -r /path/to/input.pcap -l ./log -- -k none
+#### Example: Run Suricata on a pcap file
+
+```
+./wrapper.py -- -r /path/to/filename.pcap
+```
+
+#### Example: Run Suricata 5.0.4 on network interface and log to current directory
+
+```
+./wrapper.py --tag 5.0.4 -- -i eno1 -l .
+```
+
+> Note that this tool is a work in process and may change, including a change of
+> name.
