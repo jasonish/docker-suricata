@@ -129,6 +129,17 @@ volume in subsequent runs of Suricata. For example:
         --cap-add=net_admin --cap-add=sys_nice \
         jasonish/suricata:latest -i eth0
 
+## Environment Variables
+
+### SURICATA_OPTIONS
+
+The `SURICATA_OPTIONS` environment variable can be used to pass command line
+options to Suricata. For example:
+
+```
+docker run --net=host -e SURICATA_OPTIONS="-i eno1 -vvv" jasonish/suricata:latest
+```
+
 ## Suricata-Update
 
 The easiest way to run Suricata-Update is to run it while the
