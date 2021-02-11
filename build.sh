@@ -94,6 +94,8 @@ if [ "${push}" = "yes" ]; then
                ${NAME}:${VERSION} ${NAME}:${VERSION}-arm32v6
         docker manifest annotate --arch arm --variant v8 \
                ${NAME}:${VERSION} ${NAME}:${VERSION}-arm64v8
+        docker manifest annotate --arch arm64 --variant v8 \
+               ${NAME}:${VERSION} ${NAME}:${VERSION}-arm64v8
         docker manifest push --purge ${NAME}:${VERSION}
 
         # Create and push the manifest for the major version.
@@ -105,6 +107,8 @@ if [ "${push}" = "yes" ]; then
                ${NAME}:${MAJOR} ${NAME}:${VERSION}-arm32v6
         docker manifest annotate --arch arm --variant v8 \
                ${NAME}:${MAJOR} ${NAME}:${VERSION}-arm64v8
+        docker manifest annotate --arch arm64 --variant v8 \
+               ${NAME}:${MAJOR} ${NAME}:${VERSION}-arm64v8
         docker manifest push --purge ${NAME}:${MAJOR}
 
         if [ "${MAJOR}" = "${LATEST}" ]; then
@@ -115,6 +119,8 @@ if [ "${push}" = "yes" ]; then
             docker manifest annotate --arch arm --variant v6 \
                    ${NAME}:latest ${NAME}:${VERSION}-arm32v6
             docker manifest annotate --arch arm --variant v8 \
+                   ${NAME}:latest ${NAME}:${VERSION}-arm64v8
+            docker manifest annotate --arch arm64 --variant v8 \
                    ${NAME}:latest ${NAME}:${VERSION}-arm64v8
             docker manifest push --purge ${NAME}:latest
         fi
