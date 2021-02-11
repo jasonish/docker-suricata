@@ -2,7 +2,7 @@ FROM centos:8 AS builder
 
 RUN \
         dnf -y install epel-release dnf-plugins-core && \
-        dnf config-manager --set-enabled PowerTools
+        dnf config-manager --set-enabled powertools
 
 RUN dnf -y install \
         autoconf \
