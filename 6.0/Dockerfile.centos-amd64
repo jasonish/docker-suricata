@@ -69,7 +69,8 @@ RUN ./configure \
         --disable-shared \
         --disable-gccmarch-native \
         --enable-lua \
-        --enable-nfqueue
+        --enable-nfqueue \
+        --enable-hiredis
 
 ARG CORES=2
 
