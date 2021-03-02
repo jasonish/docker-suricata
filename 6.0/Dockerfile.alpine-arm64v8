@@ -85,6 +85,7 @@ RUN apk add \
         pcre \
         py3-yaml \
         python3 \
+        shadow \
         yaml \
         zlib
 
