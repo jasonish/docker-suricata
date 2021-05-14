@@ -159,6 +159,15 @@ The will execute `suricata-update` in the same container that is
 running Suricata (note `--name=suricata`), then signal Suricata to
 reload its rules with `suricatasc -c reload-rules`.
 
+## Raspberry Pi
+
+This image is useable on the Raspberry Pi OS, however due to an
+incompatibility between Raspberry Pi OS and Docker, the timestamps in
+the logs will be wrong. There are 2 possible fixes to this issue:
+- Use the `--privileged` option to Docker
+- Upgrade the libseccomp2 package on Raspberry Pi OS to a newer
+  version from the backports repo.
+
 ## Tools
 
 ### ./wrapper.py
