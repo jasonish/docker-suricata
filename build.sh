@@ -14,118 +14,113 @@ else
     HOST="docker.io"
 fi
 
+manifest_only="no"
+
 builder="docker"
 build_command="build"
 
-for arg in $@; do
-    case "${arg}" in
-        push|--push)
-            push=yes
-            ;;
-        podman|--podman)
-            builder="podman"
+# Handle command line arguments.
+while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+        --push)
+            push="yes"
+            shift
             ;;
         --no-cache)
             no_cache="--no-cache"
+            shift
             ;;
-        *)
+        --manifest-only)
+            manifest_only="yes"
+            shift
+            ;;
+        --*)
             echo "error: bad argument: ${arg}"
             exit 1
+            ;;
+        *)
+            break
+            ;;
     esac
 done
 
-case "${builder}" in
-    podman)
-        if [ "${push}" = "yes" ]; then
-            echo "error: --push not supported with podman"
-            exit 1
-        fi
-    ;;
-    *)
-    ;;
-esac
-
-# Get the number of cores, defaulting to 2 if unable to get.
-cores=$(cat /proc/cpuinfo | grep ^processor | wc -l)
-if [ "${cores}" = "0" ]; then
-    cores=2
+ARCHS=(amd64 arm32v6 arm64v8)
+if [[ $# -gt 0 ]]; then
+    archs=$@
+else
+    archs=${ARCHS[@]}
 fi
 
-${builder} ${build_command} \
-           ${build_opts} ${no_cache} \
-           --rm \
-	   --build-arg VERSION="${VERSION}" \
-           --build-arg CORES="${cores}" \
-           --tag ${NAME}:${VERSION}-amd64 \
-           -f Dockerfile.centos-amd64 \
-           .
+if [[ "${manifest_only}" = "yes" ]]; then
+    archs=""
+fi
 
-${builder} ${build_command} \
-           ${build_opts} ${no_cache} \
-           --rm \
-	   --build-arg VERSION="${VERSION}" \
-           --build-arg CORES="${cores}" \
-           --tag ${NAME}:${VERSION}-arm32v6 \
-           -f Dockerfile.alpine-arm32v6 \
-           .
+# Get the number of cores, defaulting to 2 if unable to get.
+CORES=$(cat /proc/cpuinfo | grep ^processor | wc -l)
+if [ "${CORES}" = "0" ]; then
+    CORES=2
+fi
 
-${builder} ${build_command} \
-           ${build_opts} ${no_cache} \
-           --rm \
-	   --build-arg VERSION="${VERSION}" \
-           --build-arg CORES="${cores}" \
-           --tag ${NAME}:${VERSION}-arm64v8 \
-           -f Dockerfile.alpine-arm64v8 \
-           .
+build() {
+    arch="$1"
+    ${builder} ${build_command} \
+               ${build_opts} ${no_cache} \
+               --rm \
+	       --build-arg VERSION="${VERSION}" \
+               --build-arg CORES="${CORES}" \
+               --tag ${NAME}:${VERSION}-${arch} \
+               -f Dockerfile.${arch} \
+               .
+}
+
+for arch in ${archs[@]}; do
+    build $arch
+done
 
 if [ "${push}" = "yes" ]; then
-    if [ "${builder}" = "docker" ]; then
-        docker push ${NAME}:${VERSION}-amd64
-        docker push ${NAME}:${VERSION}-arm32v6
-        docker push ${NAME}:${VERSION}-arm64v8
-        
-        # Create and push the manfest for the version.
-        echo "Creating manifest: ${NAME}:${VERSION}"
-        docker manifest create ${NAME}:${VERSION} \
+    for arch in ${archs[@]}; do
+        docker push ${NAME}:${VERSION}-${arch}
+    done
+    
+    # Create and push the manfest for the version.
+    echo "Creating manifest: ${NAME}:${VERSION}"
+    docker manifest create ${NAME}:${VERSION} \
+           -a ${NAME}:${VERSION}-amd64 \
+           -a ${NAME}:${VERSION}-arm32v6 \
+           -a ${NAME}:${VERSION}-arm64v8
+    docker manifest annotate --arch arm --variant v6 \
+           ${NAME}:${VERSION} ${NAME}:${VERSION}-arm32v6
+    docker manifest annotate --arch arm --variant v8 \
+           ${NAME}:${VERSION} ${NAME}:${VERSION}-arm64v8
+    docker manifest annotate --arch arm64 --variant v8 \
+           ${NAME}:${VERSION} ${NAME}:${VERSION}-arm64v8
+    docker manifest push --purge ${NAME}:${VERSION}
+    
+    # Create and push the manifest for the major version.
+    docker manifest create ${NAME}:${MAJOR} \
+           -a ${NAME}:${VERSION}-amd64 \
+           -a ${NAME}:${VERSION}-arm32v6 \
+           -a ${NAME}:${VERSION}-arm64v8
+    docker manifest annotate --arch arm --variant v6 \
+           ${NAME}:${MAJOR} ${NAME}:${VERSION}-arm32v6
+    docker manifest annotate --arch arm --variant v8 \
+           ${NAME}:${MAJOR} ${NAME}:${VERSION}-arm64v8
+    docker manifest annotate --arch arm64 --variant v8 \
+           ${NAME}:${MAJOR} ${NAME}:${VERSION}-arm64v8
+    docker manifest push --purge ${NAME}:${MAJOR}
+    
+    if [ "${MAJOR}" = "${LATEST}" ]; then
+        docker manifest create ${NAME}:latest \
                -a ${NAME}:${VERSION}-amd64 \
                -a ${NAME}:${VERSION}-arm32v6 \
                -a ${NAME}:${VERSION}-arm64v8
         docker manifest annotate --arch arm --variant v6 \
-               ${NAME}:${VERSION} ${NAME}:${VERSION}-arm32v6
+               ${NAME}:latest ${NAME}:${VERSION}-arm32v6
         docker manifest annotate --arch arm --variant v8 \
-               ${NAME}:${VERSION} ${NAME}:${VERSION}-arm64v8
+               ${NAME}:latest ${NAME}:${VERSION}-arm64v8
         docker manifest annotate --arch arm64 --variant v8 \
-               ${NAME}:${VERSION} ${NAME}:${VERSION}-arm64v8
-        docker manifest push --purge ${NAME}:${VERSION}
-
-        # Create and push the manifest for the major version.
-        docker manifest create ${NAME}:${MAJOR} \
-               -a ${NAME}:${VERSION}-amd64 \
-               -a ${NAME}:${VERSION}-arm32v6 \
-               -a ${NAME}:${VERSION}-arm64v8
-        docker manifest annotate --arch arm --variant v6 \
-               ${NAME}:${MAJOR} ${NAME}:${VERSION}-arm32v6
-        docker manifest annotate --arch arm --variant v8 \
-               ${NAME}:${MAJOR} ${NAME}:${VERSION}-arm64v8
-        docker manifest annotate --arch arm64 --variant v8 \
-               ${NAME}:${MAJOR} ${NAME}:${VERSION}-arm64v8
-        docker manifest push --purge ${NAME}:${MAJOR}
-
-        if [ "${MAJOR}" = "${LATEST}" ]; then
-            docker manifest create ${NAME}:latest \
-                   -a ${NAME}:${VERSION}-amd64 \
-                   -a ${NAME}:${VERSION}-arm32v6 \
-                   -a ${NAME}:${VERSION}-arm64v8
-            docker manifest annotate --arch arm --variant v6 \
-                   ${NAME}:latest ${NAME}:${VERSION}-arm32v6
-            docker manifest annotate --arch arm --variant v8 \
-                   ${NAME}:latest ${NAME}:${VERSION}-arm64v8
-            docker manifest annotate --arch arm64 --variant v8 \
-                   ${NAME}:latest ${NAME}:${VERSION}-arm64v8
-            docker manifest push --purge ${NAME}:latest
-        fi
-    else
-        echo "error: push no implemented for ${builder}"
-        exit 1
+               ${NAME}:latest ${NAME}:${VERSION}-arm64v8
+        docker manifest push --purge ${NAME}:latest
     fi
 fi
