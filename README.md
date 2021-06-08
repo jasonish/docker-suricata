@@ -97,7 +97,7 @@ container match the UID and GID of a user on the host system. This can
 be done by setting the PUID and PGID environment variables. For
 example:
 
-    docker run -e PUID=$(id -u) -e PGID=$(id-u)
+    docker run -e PUID=$(id -u) -e PGID=$(id -g)
     
 which will result in the bind mounts being owned by the user starting
 the Docker container.
