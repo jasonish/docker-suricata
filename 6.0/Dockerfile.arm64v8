@@ -70,6 +70,7 @@ RUN rm -rf /fakeroot/var
 FROM arm64v8/alpine:latest AS runner
 
 RUN apk add \
+        bash \
         hiredis \
         jansson \
         libcap \
