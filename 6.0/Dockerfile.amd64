@@ -88,6 +88,7 @@ RUN \
         dnf -y update && \
         dnf -y install epel-release && \
         dnf -y install \
+        cronie \
         file \
         findutils \
         hiredis \
@@ -116,7 +117,8 @@ RUN \
         tcpdump \
         which \
         zlib && \
-        dnf clean all
+        dnf clean all && \
+        find /etc/logrotate.d -type f -not -name suricata -delete
 
 COPY --from=builder /fakeroot /
 

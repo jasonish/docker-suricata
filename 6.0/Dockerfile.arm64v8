@@ -88,7 +88,8 @@ RUN apk add \
         python3 \
         shadow \
         yaml \
-        zlib
+        zlib && \
+        find /etc/logrotate.d -type f -not -name suricata -delete
 
 COPY --from=builder /fakeroot /
 
