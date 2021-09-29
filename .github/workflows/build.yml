@@ -23,7 +23,7 @@ jobs:
       - run: bash -x ../build.sh ${{ matrix.arch }}
         working-directory: ${{ matrix.version }}
 
-  # Build for master. We push these on every release to make sure they
+  # Build for master. We push these on every build to make sure they
   # are up to date.
   build-master:
     runs-on: ubuntu-20.04
