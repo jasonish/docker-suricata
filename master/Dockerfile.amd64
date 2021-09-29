@@ -36,7 +36,7 @@ RUN dnf -y install \
         nspr-devel \
         nss-devel \
         nss-softokn-devel \
-        pcre-devel \
+        pcre2-devel \
         pkgconfig \
         python3-devel \
         python3-yaml \
@@ -109,7 +109,7 @@ RUN \
         net-tools \
         nss \
         nss-softokn \
-        pcre \
+        pcre2 \
         procps-ng \
         python3 \
         python3-yaml \

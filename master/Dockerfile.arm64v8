@@ -23,7 +23,7 @@ RUN apk add \
         make \
         musl-dev \
         nss-dev \
-        pcre-dev \
+        pcre2-dev \
         python3 \
         py3-yaml \
         rust \
@@ -83,7 +83,7 @@ RUN apk add \
         libmagic \
         logrotate \
         nss \
-        pcre \
+        pcre2 \
         py3-yaml \
         python3 \
         shadow \
