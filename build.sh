@@ -83,7 +83,7 @@ if [ "${push}" = "yes" ]; then
         docker push ${NAME}:${VERSION}-${arch}
     done
     
-    # Create and push the manfest for the version.
+    # Create and push the manifest for the version.
     echo "Creating manifest: ${NAME}:${VERSION}"
     docker manifest create ${NAME}:${VERSION} \
            -a ${NAME}:${VERSION}-amd64 \
@@ -111,6 +111,10 @@ if [ "${push}" = "yes" ]; then
     docker manifest push --purge ${NAME}:${MAJOR}
     
     if [ "${MAJOR}" = "${LATEST}" ]; then
+        for arch in ${archs[@]}; do
+            docker tag ${NAME}:${VERSION}-${arch} ${NAME}:latest-${arch}
+            docker push ${NAME}:latest-${arch}
+        done
         docker manifest create ${NAME}:latest \
                -a ${NAME}:${VERSION}-amd64 \
                -a ${NAME}:${VERSION}-arm32v6 \
