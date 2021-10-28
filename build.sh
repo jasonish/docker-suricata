@@ -1,4 +1,6 @@
 #! /bin/bash
+#
+# License: MIT
 
 set -e
 set -x

@@ -195,3 +195,7 @@ directly.
 
 > Note that this tool is a work in process and may change, including a change of
 > name.
+
+## License
+
+The build scripts, Dockerfiles and any other files in this repo are MIT licensed.
