@@ -1,4 +1,4 @@
-FROM centos:8 AS builder
+FROM almalinux:8 AS builder
 
 RUN \
         dnf -y update && \
@@ -83,11 +83,12 @@ RUN make install install-conf DESTDIR=/fakeroot
 # next stage.
 RUN rm -rf /fakeroot/var
 
-FROM centos:8 AS runner
+FROM almalinux/8-base:latest AS runner
 RUN \
         dnf -y update && \
         dnf -y install epel-release && \
         dnf -y install \
+        cronie \
         file \
         findutils \
         hiredis \
@@ -116,7 +117,8 @@ RUN \
         tcpdump \
         which \
         zlib && \
-        dnf clean all
+        dnf clean all && \
+        find /etc/logrotate.d -type f -not -name suricata -delete
 
 COPY --from=builder /fakeroot /
 

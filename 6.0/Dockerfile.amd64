@@ -1,4 +1,4 @@
-FROM centos:8 AS builder
+FROM almalinux:8 AS builder
 
 RUN \
         dnf -y update && \
@@ -83,7 +83,7 @@ RUN make install install-conf DESTDIR=/fakeroot
 # next stage.
 RUN rm -rf /fakeroot/var
 
-FROM centos:8 AS runner
+FROM almalinux/8-base:latest AS runner
 RUN \
         dnf -y update && \
         dnf -y install epel-release && \
