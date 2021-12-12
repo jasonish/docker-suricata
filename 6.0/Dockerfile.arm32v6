@@ -1,5 +1,7 @@
 FROM arm32v6/alpine:latest AS builder
 
+ENV CARGO_NET_GIT_FETCH_WITH_CLI=true
+RUN apk update
 RUN apk add \
         automake \
         autoconf \
