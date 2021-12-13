@@ -5,16 +5,13 @@
 set -e
 set -x
 
-NAME="jasonish/suricata"
+if [ "${REPO}" = "" ]; then
+    REPO="docker.io/jasonish/suricata"
+fi
+
 MAJOR=$(basename $(pwd))
 VERSION=$(cat VERSION)
 LATEST=$(cat ../LATEST)
-
-if [ "${HOST}" != "" ]; then
-    NAME="${HOST}/${NAME}"
-else
-    HOST="docker.io"
-fi
 
 manifest_only="no"
 
@@ -71,7 +68,7 @@ build() {
                --rm \
 	       --build-arg VERSION="${VERSION}" \
                --build-arg CORES="${CORES}" \
-               --tag ${NAME}:${VERSION}-${arch} \
+               --tag ${REPO}:${VERSION}-${arch} \
                -f Dockerfile.${arch} \
                .
 }
@@ -82,51 +79,51 @@ done
 
 if [ "${push}" = "yes" ]; then
     for arch in ${archs[@]}; do
-        docker push ${NAME}:${VERSION}-${arch}
+        docker push ${REPO}:${VERSION}-${arch}
     done
     
     # Create and push the manifest for the version.
-    echo "Creating manifest: ${NAME}:${VERSION}"
-    docker manifest create ${NAME}:${VERSION} \
-           -a ${NAME}:${VERSION}-amd64 \
-           -a ${NAME}:${VERSION}-arm32v6 \
-           -a ${NAME}:${VERSION}-arm64v8
+    echo "Creating manifest: ${REPO}:${VERSION}"
+    docker manifest create ${REPO}:${VERSION} \
+           -a ${REPO}:${VERSION}-amd64 \
+           -a ${REPO}:${VERSION}-arm32v6 \
+           -a ${REPO}:${VERSION}-arm64v8
     docker manifest annotate --arch arm --variant v6 \
-           ${NAME}:${VERSION} ${NAME}:${VERSION}-arm32v6
+           ${REPO}:${VERSION} ${REPO}:${VERSION}-arm32v6
     docker manifest annotate --arch arm --variant v8 \
-           ${NAME}:${VERSION} ${NAME}:${VERSION}-arm64v8
+           ${REPO}:${VERSION} ${REPO}:${VERSION}-arm64v8
     docker manifest annotate --arch arm64 --variant v8 \
-           ${NAME}:${VERSION} ${NAME}:${VERSION}-arm64v8
-    docker manifest push --purge ${NAME}:${VERSION}
+           ${REPO}:${VERSION} ${REPO}:${VERSION}-arm64v8
+    docker manifest push --purge ${REPO}:${VERSION}
     
     # Create and push the manifest for the major version.
-    docker manifest create ${NAME}:${MAJOR} \
-           -a ${NAME}:${VERSION}-amd64 \
-           -a ${NAME}:${VERSION}-arm32v6 \
-           -a ${NAME}:${VERSION}-arm64v8
+    docker manifest create ${REPO}:${MAJOR} \
+           -a ${REPO}:${VERSION}-amd64 \
+           -a ${REPO}:${VERSION}-arm32v6 \
+           -a ${REPO}:${VERSION}-arm64v8
     docker manifest annotate --arch arm --variant v6 \
-           ${NAME}:${MAJOR} ${NAME}:${VERSION}-arm32v6
+           ${REPO}:${MAJOR} ${REPO}:${VERSION}-arm32v6
     docker manifest annotate --arch arm --variant v8 \
-           ${NAME}:${MAJOR} ${NAME}:${VERSION}-arm64v8
+           ${REPO}:${MAJOR} ${REPO}:${VERSION}-arm64v8
     docker manifest annotate --arch arm64 --variant v8 \
-           ${NAME}:${MAJOR} ${NAME}:${VERSION}-arm64v8
-    docker manifest push --purge ${NAME}:${MAJOR}
+           ${REPO}:${MAJOR} ${REPO}:${VERSION}-arm64v8
+    docker manifest push --purge ${REPO}:${MAJOR}
     
     if [ "${MAJOR}" = "${LATEST}" ]; then
         for arch in ${archs[@]}; do
-            docker tag ${NAME}:${VERSION}-${arch} ${NAME}:latest-${arch}
-            docker push ${NAME}:latest-${arch}
+            docker tag ${REPO}:${VERSION}-${arch} ${REPO}:latest-${arch}
+            docker push ${REPO}:latest-${arch}
         done
-        docker manifest create ${NAME}:latest \
-               -a ${NAME}:${VERSION}-amd64 \
-               -a ${NAME}:${VERSION}-arm32v6 \
-               -a ${NAME}:${VERSION}-arm64v8
+        docker manifest create ${REPO}:latest \
+               -a ${REPO}:${VERSION}-amd64 \
+               -a ${REPO}:${VERSION}-arm32v6 \
+               -a ${REPO}:${VERSION}-arm64v8
         docker manifest annotate --arch arm --variant v6 \
-               ${NAME}:latest ${NAME}:${VERSION}-arm32v6
+               ${REPO}:latest ${REPO}:${VERSION}-arm32v6
         docker manifest annotate --arch arm --variant v8 \
-               ${NAME}:latest ${NAME}:${VERSION}-arm64v8
+               ${REPO}:latest ${REPO}:${VERSION}-arm64v8
         docker manifest annotate --arch arm64 --variant v8 \
-               ${NAME}:latest ${NAME}:${VERSION}-arm64v8
-        docker manifest push --purge ${NAME}:latest
+               ${REPO}:latest ${REPO}:${VERSION}-arm64v8
+        docker manifest push --purge ${REPO}:latest
     fi
 fi
