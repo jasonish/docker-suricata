@@ -1,5 +1,43 @@
 # Suricata Docker Image
 
+## Docker Tags (Suricata Versions)
+
+- master: The latest code from the git master branch.
+- latest: The latest release version (currently 6.0)
+- 6.0: The latest 6.0 patch release.
+- 5.0: The latest 5.0 patch release.
+
+Specific version tags also exist for versions 4.1.5 and newer.
+
+Examples:
+
+    docker pull jasonish/suricata:latest
+    docker pull jasonish/suricata:6.0.4
+
+The images are rebuilt and pushed to Docker Hub daily to ensure they
+are using the most up to date packages of the base OS, and in the case
+of the `master` tag, to use the latest Suricata code for the git
+master branch.
+
+Tags without an architecture like `amd64` or `arm64v8` are multi-architecture
+image manifests. For the most part Docker will do the right thing, however if
+you need to pull the image for a specific architecture you can do so by
+selecting a tag with an architecture in the name, for example:
+
+```
+docker pull jasonish/suricata:latest-amd64
+docker pull jasonish/suricata:6.0.4-arm64v8
+```
+
+## Alternate Registry
+
+In addition to Docker Hub, these containers are also pushed to quay.io and can
+be pulled like:
+
+```
+docker pull quay.io/jasonish/suricata:latest
+```
+
 ## Usage
 
 You will most likely want to run Suricata on a network interface on
@@ -42,26 +80,6 @@ Podman example:
     sudo podman run --rm -it --net=host \
         --cap-add=net_admin --cap-add=sys_nice \
         jasonish/suricata:latest -i eth0
-
-## Docker Tags (Suricata Versions)
-
-- master: The latest code from the git master branch.
-- latest: The latest release version.
-- 5.0: The latest 5.0 patch release.
-- 4.1: The latest 4.1 patch release.
-
-Specific version tags also exist for versions 4.1.5 and newer.
-
-Examples:
-
-    docker pull jasonish/suricata:latest
-    docker pull jasonish/suricata:4.1
-    docker pull jasonish/suricata:5.0.0
-
-The images are rebuilt and pushed to Docker Hub daily to ensure they
-are using the most up to date packages of the base OS, and in the case
-of the `master` tag, to use the latest Suricata code for the git
-master branch.
 
 ## Logging
 
