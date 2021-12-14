@@ -17,6 +17,7 @@ RUN apk add \
         libpcap-dev \
         libelf \
         libbpf-dev \
+        libnet-dev \
         libnetfilter_queue-dev \
         libnetfilter_log-dev \
         libtool \
@@ -80,6 +81,7 @@ RUN apk add \
         libpcap \
         libelf \
         libbpf \
+        libnet \
         libnetfilter_queue \
         libnetfilter_log \
         libmagic \
@@ -92,7 +94,6 @@ RUN apk add \
         yaml \
         zlib && \
         find /etc/logrotate.d -type f -not -name suricata -delete
-
 
 COPY --from=builder /fakeroot /
 

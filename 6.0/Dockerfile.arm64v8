@@ -15,6 +15,7 @@ RUN apk add \
         libpcap-dev \
         libelf \
         libbpf-dev \
+        libnet-dev \
         libnetfilter_queue-dev \
         libnetfilter_log-dev \
         libtool \
@@ -78,6 +79,7 @@ RUN apk add \
         libpcap \
         libelf \
         libbpf \
+        libnet \
         libnetfilter_queue \
         libnetfilter_log \
         libmagic \
