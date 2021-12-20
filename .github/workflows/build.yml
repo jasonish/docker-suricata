@@ -8,7 +8,7 @@ on:
 
 jobs:
 
-  # Build versioned releases. We don't push these one every build.
+  # Build versioned releases. We don't push these on every build.
   build-versions:
     runs-on: ubuntu-20.04
     strategy:
@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
-      - run: bash -x ../build.sh ${{ matrix.arch }}
+      - run: ../build.sh ${{ matrix.arch }}
         working-directory: ${{ matrix.version }}
 
   # Build for master. We push these on every build to make sure they
@@ -35,7 +35,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
-      - run: bash -x ../build.sh ${{ matrix.arch }}
+      - run: ../build.sh ${{ matrix.arch }}
         working-directory: master
       - name: Docker Hub Login
         uses: docker/login-action@v1
@@ -43,6 +43,18 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
       - run: docker push jasonish/suricata:master-${{ matrix.arch }}
+      # Rebuild for quay.io, this should be quick as its essentially retagging
+      # the already built images.
+      - run: REPO=quay.io/jasonish/suricata ../build.sh ${{ matrix.arch}}
+        working-directory: master
+      - name: Quay.io Login
+        uses: docker/login-action@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+      - run: docker push quay.io/jasonish/suricata:master-${{ matrix.arch }}
+        working-directory: master
 
   push-master:
     runs-on: ubuntu-20.04
@@ -56,4 +68,12 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
       - run: ../build.sh --push --manifest-only
+        working-directory: master
+      - name: Quay.io Login
+        uses: docker/login-action@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+      - run: REPO=quay.io/jasonish/suricata ../build.sh --push --manifest-only
         working-directory: master
