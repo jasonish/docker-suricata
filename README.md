@@ -98,6 +98,21 @@ For example:
 This will expose `/var/log/suricata` from the Suricata container as
 `/var/log/suricata` in the Logstash container.
 
+## Log Rotation
+
+Running `logrotate` inside the Suricata container will do the right thing, for
+example:
+
+```
+docker exec CONTAINER_ID logrotate /etc/logrotate.d/suricata
+```
+
+to test, logrotate can run in a force and verbose mode:
+
+```
+docker exec CONTAINER_ID logrotate -vf /etc/logrotate.d/suricata
+```
+
 ## Volumes
 
 The Suricata container exposes the following volumes:
