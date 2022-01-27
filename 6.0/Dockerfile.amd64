@@ -65,13 +65,16 @@ fi
 
 WORKDIR /src/suricata-${VERSION}
 
+ARG CONFIGURE_ARGS
+
 RUN ./configure \
         --prefix=/usr \
         --disable-shared \
         --disable-gccmarch-native \
         --enable-lua \
         --enable-nfqueue \
-        --enable-hiredis
+        --enable-hiredis \
+        ${CONFIGURE_ARGS}
 
 ARG CORES=2
 

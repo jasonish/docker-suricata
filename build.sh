@@ -3,7 +3,6 @@
 # License: MIT
 
 set -e
-set -x
 
 if [ "${REPO}" = "" ]; then
     REPO="docker.io/jasonish/suricata"
@@ -63,12 +62,23 @@ fi
 
 build() {
     arch="$1"
+    profiling="$2"
+
+    tag="${REPO}:${VERSION}-${arch}"
+
+    configure_args=""
+    if [ "${profiling}" = "profiling" ]; then
+        configure_args="${configure_args} --enable-profiling --enable-profiling-locks"
+        tag="${tag}-profiling"
+    fi
+
     ${builder} ${build_command} \
                ${build_opts} ${no_cache} \
                --rm \
 	       --build-arg VERSION="${VERSION}" \
                --build-arg CORES="${CORES}" \
-               --tag ${REPO}:${VERSION}-${arch} \
+               --build-arg CONFIGURE_ARGS="${configure_args}" \
+               --tag "${tag}" \
                -f Dockerfile.${arch} \
                .
 }
@@ -80,8 +90,11 @@ done
 if [ "${push}" = "yes" ]; then
     for arch in ${archs[@]}; do
         docker push ${REPO}:${VERSION}-${arch}
+        if [ "${arch}" = "amd64" ]; then
+            docker push ${REPO}:${VERSION}-${arch}-profiling
+        fi
     done
-    
+
     # Create and push the manifest for the version.
     echo "Creating manifest: ${REPO}:${VERSION}"
     docker manifest create ${REPO}:${VERSION} \
@@ -95,7 +108,13 @@ if [ "${push}" = "yes" ]; then
     docker manifest annotate --arch arm64 --variant v8 \
            ${REPO}:${VERSION} ${REPO}:${VERSION}-arm64v8
     docker manifest push --purge ${REPO}:${VERSION}
-    
+
+    manifest="${REPO}:${VERSION}-profiling"
+    echo "Creating manifest: ${manifest}"
+    docker manifest create ${manifest} \
+           -a ${REPO}:${VERSION}-amd64
+    docker manifest push --purge ${manifest}
+
     # Create and push the manifest for the major version.
     docker manifest create ${REPO}:${MAJOR} \
            -a ${REPO}:${VERSION}-amd64 \
@@ -108,7 +127,13 @@ if [ "${push}" = "yes" ]; then
     docker manifest annotate --arch arm64 --variant v8 \
            ${REPO}:${MAJOR} ${REPO}:${VERSION}-arm64v8
     docker manifest push --purge ${REPO}:${MAJOR}
-    
+
+    manifest="${REPO}:${MAJOR}-profiling"
+    echo "Creating manifest: ${manifest}"
+    docker manifest create ${manifest} \
+           -a ${REPO}:${VERSION}-amd64
+    docker manifest push --purge ${manifest}
+
     if [ "${MAJOR}" = "${LATEST}" ]; then
         for arch in ${archs[@]}; do
             docker tag ${REPO}:${VERSION}-${arch} ${REPO}:latest-${arch}
@@ -125,5 +150,10 @@ if [ "${push}" = "yes" ]; then
         docker manifest annotate --arch arm64 --variant v8 \
                ${REPO}:latest ${REPO}:${VERSION}-arm64v8
         docker manifest push --purge ${REPO}:latest
+
+        # Profiling.
+        docker manifest create ${REPO}:latest-profiling \
+               -a ${REPO}:${VERSION}-amd64
+        docker manifest push --purge ${REPO}:latest-profiling
     fi
 fi
