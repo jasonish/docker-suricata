@@ -85,14 +85,18 @@ build() {
 
 for arch in ${archs[@]}; do
     build $arch
+    build $arch profiling
 done
 
 if [ "${push}" = "yes" ]; then
     for arch in ${archs[@]}; do
-        docker push ${REPO}:${VERSION}-${arch}
-        if [ "${arch}" = "amd64" ]; then
-            docker push ${REPO}:${VERSION}-${arch}-profiling
-        fi
+        tag="${REPO}:${VERSION}-${arch}"
+        echo "Pushing ${tag}"
+        docker push ${tag}
+
+        tag="${REPO}:${VERSION}-${arch}-profiling"
+        echo "Pushing ${tag}"
+        docker push ${tag}
     done
 
     # Create and push the manifest for the version.
@@ -112,7 +116,9 @@ if [ "${push}" = "yes" ]; then
     manifest="${REPO}:${VERSION}-profiling"
     echo "Creating manifest: ${manifest}"
     docker manifest create ${manifest} \
-           -a ${REPO}:${VERSION}-amd64
+           -a ${REPO}:${VERSION}-amd64-profiling \
+           -a ${REPO}:${VERSION}-arm32v6-profiling \
+           -a ${REPO}:${VERSION}-arm64v8-profiling
     docker manifest push --purge ${manifest}
 
     # Create and push the manifest for the major version.
@@ -131,7 +137,9 @@ if [ "${push}" = "yes" ]; then
     manifest="${REPO}:${MAJOR}-profiling"
     echo "Creating manifest: ${manifest}"
     docker manifest create ${manifest} \
-           -a ${REPO}:${VERSION}-amd64
+           -a ${REPO}:${VERSION}-amd64-profiling \
+           -a ${REPO}:${VERSION}-arm32v6-profiling \
+           -a ${REPO}:${VERSION}-arm64v8-profiling
     docker manifest push --purge ${manifest}
 
     if [ "${MAJOR}" = "${LATEST}" ]; then
@@ -153,7 +161,9 @@ if [ "${push}" = "yes" ]; then
 
         # Profiling.
         docker manifest create ${REPO}:latest-profiling \
-               -a ${REPO}:${VERSION}-amd64
+               -a ${REPO}:${VERSION}-amd64-profiling \
+               -a ${REPO}:${VERSION}-arm32v6-profiling \
+               -a ${REPO}:${VERSION}-arm64v8-profiling
         docker manifest push --purge ${REPO}:latest-profiling
     fi
 fi
