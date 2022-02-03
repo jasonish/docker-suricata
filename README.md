@@ -45,14 +45,14 @@ your host machine rather than the network interfaces normally provided
 inside a container:
 
     docker run --rm -it --net=host \
-        --cap-add=net_admin --cap-add=sys_nice \
+        --cap-add=net_admin --cap-add=net_raw --cap-add=sys_nice \
         jasonish/suricata:latest -i <interface>
 
 But you will probably want to see what Suricata logs, so you may want
 to start it like:
 
     docker run --rm -it --net=host \
-        --cap-add=net_admin --cap-add=sys_nice \
+        --cap-add=net_admin --cap-add=net_raw --cap-add=sys_nice \
         -v $(pwd)/logs:/var/log/suricata \
 		jasonish/suricata:latest -i <interface>
 
@@ -62,24 +62,25 @@ logs from outside the container.
 
 ## Capabilities
 
-This container will attempt to run Suricata as a non-root user
-provided the containers has the capabilities to do so. In order to
-monitor a network interface, and drop root privileges the container
-must have the `sys_nice` and `net_admin` capabilities. If the
-container detects that it does not have these capabilities, Suricata
-will be run as root.
+This container will attempt to run Suricata as a non-root user provided the
+containers has the capabilities to do so. In order to monitor a network
+interface, and drop root privileges the container must have the `sys_nice`,
+`net_admin`, and `net_raw` capabilities. If the container detects that it does
+not have these capabilities, Suricata will be run as root.
 
 Docker example:
 
     docker run --rm -it --net=host \
-        --cap-add=net_admin --cap-add=sys_nice \
+        --cap-add=net_admin --cap-add=net_raw --cap-add=sys_nice \
         jasonish/suricata:latest -i eth0
 
 Podman example:
 
     sudo podman run --rm -it --net=host \
-        --cap-add=net_admin --cap-add=sys_nice \
+        --cap-add=net_admin,net_raw,sys_nice \
         jasonish/suricata:latest -i eth0
+
+Note that with `podman` adding the capabilities is mandatory.
 
 ## Logging
 
@@ -159,7 +160,7 @@ volume in subsequent runs of Suricata. For example:
 
     docker run --rm -it --net=host \
         -v $(pwd)/etc:/etc/suricata \
-        --cap-add=net_admin --cap-add=sys_nice \
+        --cap-add=net_admin --cap-add=net_raw --cap-add=sys_nice \
         jasonish/suricata:latest -i eth0
 
 ## Environment Variables
@@ -181,7 +182,7 @@ container is running. For example:
 In one terminal, start Suricata:
 
     docker run --name=suricata --rm -it --net=host \
-        --cap-add=net_admin --cap-add=sys_nice \
+        --cap-add=net_admin --cap-add=net_raw --cap-add=sys_nice \
         jasonish/suricata:latest -i eth0
 
 Then in another terminal:
