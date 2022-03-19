@@ -43,6 +43,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
       - run: docker push jasonish/suricata:master-${{ matrix.arch }}
+      - run: docker push jasonish/suricata:master-${{ matrix.arch }}-profiling
       # Rebuild for quay.io, this should be quick as its essentially retagging
       # the already built images.
       - run: REPO=quay.io/jasonish/suricata ../build.sh ${{ matrix.arch}}
@@ -54,7 +55,7 @@ jobs:
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
       - run: docker push quay.io/jasonish/suricata:master-${{ matrix.arch }}
-        working-directory: master
+      - run: docker push quay.io/jasonish/suricata:master-${{ matrix.arch }}-profiling
 
   push-master:
     runs-on: ubuntu-20.04

@@ -84,7 +84,9 @@ build() {
 }
 
 for arch in ${archs[@]}; do
+    echo "===> Building ${arch}"
     build $arch
+    echo "===> Building ${arch} (profiling)"
     build $arch profiling
 done
 
