@@ -24,6 +24,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
       - run: docker push jasonish/suricata:master-${{ matrix.arch }}
+      - run: docker push jasonish/suricata:master-${{ matrix.arch }}-profiling
 
   push-master:
     runs-on: ubuntu-20.04
