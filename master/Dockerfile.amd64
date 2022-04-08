@@ -74,6 +74,7 @@ RUN ./configure \
         --enable-lua \
         --enable-nfqueue \
         --enable-hiredis \
+        --enable-geoip \
         ${CONFIGURE_ARGS}
 
 ARG CORES=2
