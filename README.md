@@ -202,34 +202,6 @@ the logs will be wrong. There are 2 possible fixes to this issue:
 - Upgrade the libseccomp2 package on Raspberry Pi OS to a newer
   version from the backports repo.
 
-## Tools
-
-### ./wrapper.py
-
-`wrapper.py` is a script that wraps Suricata-in-Docker for use on the command
-line as if it was installed locally.
-
-`wrapper.py` has its own arguments that can be seen by running `wrapper.py -h`.
-Arguments that occur after `--` are Suricata arguments and are passed directly
-to Suricata (most of the time). The Suricata arguments are preprocessed to setup
-any required volumes to provide the appearance that Suricata is running
-directly.
-
-#### Example: Run Suricata on a pcap file
-
-```
-./wrapper.py -- -r /path/to/filename.pcap
-```
-
-#### Example: Run Suricata 5.0.4 on network interface and log to current directory
-
-```
-./wrapper.py --tag 5.0.4 -- -i eno1 -l .
-```
-
-> Note that this tool is a work in process and may change, including a change of
-> name.
-
 ## License
 
 The build scripts, Dockerfiles and any other files in this repo are MIT licensed.
