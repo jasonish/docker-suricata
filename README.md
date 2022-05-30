@@ -202,6 +202,20 @@ the logs will be wrong. There are 2 possible fixes to this issue:
 - Upgrade the libseccomp2 package on Raspberry Pi OS to a newer
   version from the backports repo.
 
+## HOWTOs
+
+### Initialize a Configuration
+
+Running with an empty volume at `/etc/suricata/suricata.yaml` will generate
+default configuration files. Example:
+
+```
+docker run --rm -it -v $(pwd)/etc:/etc/suricata jasonish/suricata:latest -V
+```
+
+This will leave you with a directory containing the default configuration files
+from the container.
+
 ## License
 
 The build scripts, Dockerfiles and any other files in this repo are MIT licensed.
