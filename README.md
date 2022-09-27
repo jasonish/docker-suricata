@@ -216,6 +216,14 @@ docker run --rm -it -v $(pwd)/etc:/etc/suricata jasonish/suricata:latest -V
 This will leave you with a directory containing the default configuration files
 from the container.
 
+## Building
+
+### Prepare to Build ARM images on x86_64
+
+```
+docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+```
+
 ## License
 
 The build scripts, Dockerfiles and any other files in this repo are MIT licensed.
