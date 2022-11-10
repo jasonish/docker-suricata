@@ -6,6 +6,9 @@ on:
       - "README.md"
   pull_request:
 
+env:
+  CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+
 jobs:
 
   # Build versioned releases. We don't push these on every build.

@@ -72,6 +72,12 @@ build() {
         tag="${tag}-profiling"
     fi
 
+    build_opts=""
+
+    if [[ "${CARGO_NET_GIT_FETCH_WITH_CLI}" ]]; then
+        build_opts="${build_opts} --build-arg CARGO_NET_GIT_FETCH_WITH_CLI=${CARGO_NET_GIT_FETCH_WITH_CLI}"
+    fi
+
     ${builder} ${build_command} \
                ${build_opts} ${no_cache} \
                --rm \
