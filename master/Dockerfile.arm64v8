@@ -57,7 +57,6 @@ RUN ./configure \
         --localstatedir=/var \
         --disable-shared \
         --disable-gccmarch-native \
-        --enable-ebpf \
         --enable-nfqueue \
         --enable-hiredis \
         --enable-geoip \
