@@ -10,6 +10,7 @@ RUN dnf -y install \
         automake \
         cargo \
         diffutils \
+        elfutils-libelf-devel \
         file \
         file-devel \
         gcc \
@@ -20,6 +21,7 @@ RUN dnf -y install \
         jansson-devel \
         jq \
         lua-devel \
+        libbpf-devel \
         libtool \
         libyaml-devel \
         libnfnetlink-devel \
@@ -75,6 +77,7 @@ RUN ./configure \
         --enable-nfqueue \
         --enable-hiredis \
         --enable-geoip \
+        --enable-ebpf \
         ${CONFIGURE_ARGS}
 
 ARG CORES=2
@@ -93,6 +96,7 @@ RUN \
         dnf -y install epel-release && \
         dnf -y install \
         cronie \
+        elfutils-libelf \
         file \
         findutils \
         hiredis \
@@ -100,6 +104,7 @@ RUN \
         iproute \
         jansson \
         lua-libs \
+        libbpf \
         libyaml \
         libnfnetlink \
         libnetfilter_queue \
