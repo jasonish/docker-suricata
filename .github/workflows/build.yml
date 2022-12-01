@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         arch: [amd64, arm32v6, arm64v8]
-        version: ["6.0", "5.0"]
+        version: ["6.0"]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
