@@ -1,38 +1,59 @@
-FROM arm64v8/alpine:latest AS builder
+FROM arm64v8/almalinux:8 AS builder
 
-RUN apk add \
-        automake \
+RUN \
+        dnf -y update && \
+        dnf -y install epel-release dnf-plugins-core && \
+        dnf config-manager --set-enabled powertools
+
+RUN dnf -y install \
         autoconf \
+        automake \
         cargo \
-        cbindgen \
-        curl \
-        elfutils-dev \
-        file-dev \
+        diffutils \
+        elfutils-libelf-devel \
+        file \
+        file-devel \
         gcc \
+        gcc-c++ \
         git \
-        hiredis-dev \
-        jansson-dev \
-        libpcap-dev \
-        libelf \
-        libbpf-dev \
-        libmaxminddb-dev \
-        libnet-dev \
-        libnetfilter_queue-dev \
-        libnetfilter_log-dev \
+        hiredis-devel \
+        jansson-devel \
+        jq \
+        lua-devel \
+        libbpf-devel \
         libtool \
-        linux-headers \
-        libcap-ng-dev \
+        libyaml-devel \
+        libnfnetlink-devel \
+        libnetfilter_queue-devel \
+        libnet-devel \
+        libcap-ng-devel \
+        libevent-devel \
+        libmaxminddb-devel \
+        libpcap-devel \
+        libprelude-devel \
+        libtool \
+        lz4-devel \
         make \
-        musl-dev \
-        nss-dev \
-        pcre2-dev \
-        python3 \
-        py3-yaml \
+        nspr-devel \
+        nss-devel \
+        nss-softokn-devel \
+        pcre2-devel \
+        pkgconfig \
+        python3-devel \
+        python3-yaml \
         rust \
-        yaml-dev \
-        zlib-dev
+        which \
+        zlib-devel
+
+RUN if [ "$(arch)" = "x86_64" ]; then \
+       dnf -y install hyperscan-devel; \
+fi
 
 ARG VERSION
+
+RUN if [ "${VERSION}" = "master" ]; then \
+        cargo install --root /usr/local cbindgen; \
+fi
 
 WORKDIR /src
 
@@ -53,14 +74,14 @@ ARG CONFIGURE_ARGS
 
 RUN ./configure \
         --prefix=/usr \
-        --sysconfdir=/etc \
-        --localstatedir=/var \
         --disable-shared \
         --disable-gccmarch-native \
+        --enable-lua \
         --enable-nfqueue \
         --enable-hiredis \
         --enable-geoip \
-	${CONFIGURE_ARGS}
+        --enable-ebpf \
+        ${CONFIGURE_ARGS}
 
 ARG CORES=2
 
@@ -72,36 +93,52 @@ RUN make install install-conf DESTDIR=/fakeroot
 # next stage.
 RUN rm -rf /fakeroot/var
 
-FROM arm64v8/alpine:latest AS runner
-
-RUN apk add \
-        bash \
+FROM almalinux/arm64v8:8-base AS runner
+RUN \
+        dnf -y update && \
+        dnf -y install epel-release && \
+        dnf -y install \
+        cronie \
+        elfutils-libelf \
+        file \
+        findutils \
         hiredis \
+        iproute \
         jansson \
-        libcap \
-        libcap-ng \
-        libpcap \
-        libelf \
+        lua-libs \
         libbpf \
-        libmaxminddb \
-        libnet \
+        libyaml \
+        libnfnetlink \
         libnetfilter_queue \
-        libnetfilter_log \
-        libmagic \
+        libnet \
+        libcap-ng \
+        libevent \
+        libmaxminddb \
+        libpcap \
+        libprelude \
         logrotate \
+        lz4 \
+        net-tools \
         nss \
+        nss-softokn \
         pcre2 \
-        py3-yaml \
+        procps-ng \
         python3 \
-        shadow \
-        yaml \
+        python3-yaml \
+        tcpdump \
+        which \
         zlib && \
+        dnf clean all && \
         find /etc/logrotate.d -type f -not -name suricata -delete
+
+RUN if [ "$(arch)" = "x86_64" ]; then \
+       dnf -y install hyperscan; \
+fi
 
 COPY --from=builder /fakeroot /
 
 # Create the directories that didn't get coped from the previous stage.
-RUN mkdir -p /var/log/suricata /var/run/suricata
+RUN mkdir -p /var/log/suricata /var/run/suricata /var/lib/suricata
 
 COPY /update.yaml /etc/suricata/update.yaml
 COPY /suricata.logrotate /etc/logrotate.d/suricata
@@ -111,8 +148,7 @@ RUN suricata-update update-sources && \
         suricata-update --no-test --no-reload && \
         /usr/bin/suricata -V
 
-RUN addgroup suricata && \
-        adduser -S -G suricata suricata && \
+RUN useradd --system --create-home suricata && \
         chown -R suricata:suricata /etc/suricata && \
         chown -R suricata:suricata /var/log/suricata && \
         chown -R suricata:suricata /var/lib/suricata && \

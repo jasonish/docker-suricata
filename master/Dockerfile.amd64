@@ -17,7 +17,6 @@ RUN dnf -y install \
         gcc-c++ \
         git \
         hiredis-devel \
-        hyperscan-devel \
         jansson-devel \
         jq \
         lua-devel \
@@ -45,6 +44,10 @@ RUN dnf -y install \
         rust \
         which \
         zlib-devel
+
+RUN if [ "$(arch)" = "x86_64" ]; then \
+       dnf -y install hyperscan-devel; \
+fi
 
 ARG VERSION
 
@@ -100,7 +103,6 @@ RUN \
         file \
         findutils \
         hiredis \
-        hyperscan \
         iproute \
         jansson \
         lua-libs \
@@ -128,6 +130,10 @@ RUN \
         zlib && \
         dnf clean all && \
         find /etc/logrotate.d -type f -not -name suricata -delete
+
+RUN if [ "$(arch)" = "x86_64" ]; then \
+       dnf -y install hyperscan; \
+fi
 
 COPY --from=builder /fakeroot /
 
