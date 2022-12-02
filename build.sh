@@ -43,7 +43,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-ARCHS=(amd64 arm32v6 arm64v8)
+ARCHS=(amd64 arm64v8 arm32v6)
 if [[ $# -gt 0 ]]; then
     archs=$@
 else
@@ -90,88 +90,64 @@ build() {
 }
 
 for arch in ${archs[@]}; do
-    echo "===> Building ${arch}"
-    build $arch
-    echo "===> Building ${arch} (profiling)"
-    build $arch profiling
+    if test -e "Dockerfile.${arch}"; then
+        echo "===> Building ${arch}"
+        build $arch
+        echo "===> Building ${arch} (profiling)"
+        build $arch profiling
+    fi
 done
 
-if [ "${push}" = "yes" ]; then
-    for arch in ${archs[@]}; do
-        tag="${REPO}:${VERSION}-${arch}"
-        echo "Pushing ${tag}"
-        docker push ${tag}
-
-        tag="${REPO}:${VERSION}-${arch}-profiling"
-        echo "Pushing ${tag}"
-        docker push ${tag}
+push_manifest() {
+    local manifest_version="$1"
+    shift
+    local suffix="$1"
+    shift
+    push_archs=("$@")
+    for arch in ${push_archs[@]}; do
+        docker manifest create ${REPO}:${manifest_version}${suffix} \
+            -a ${REPO}:${VERSION}-${arch}${suffix}
+        case "${arch}" in
+            arm64v8)
+                docker manifest annotate --arch arm --variant v8 \
+                    ${REPO}:${manifest_version}${suffix} ${REPO}:${VERSION}-${arch}${suffix}
+                docker manifest annotate --arch arm64 --variant v8 \
+                    ${REPO}:${manifest_version}${suffix} ${REPO}:${VERSION}-${arch}${suffix}
+                ;;
+            arm32v6)
+                docker manifest annotate --arch arm --variant v6 \
+                    ${REPO}:${manifest_version}${suffix} ${REPO}:${VERSION}-${arch}${suffix}
+                ;;
+        esac
     done
 
-    # Create and push the manifest for the version.
-    echo "Creating manifest: ${REPO}:${VERSION}"
-    docker manifest create ${REPO}:${VERSION} \
-           -a ${REPO}:${VERSION}-amd64 \
-           -a ${REPO}:${VERSION}-arm32v6 \
-           -a ${REPO}:${VERSION}-arm64v8
-    docker manifest annotate --arch arm --variant v6 \
-           ${REPO}:${VERSION} ${REPO}:${VERSION}-arm32v6
-    docker manifest annotate --arch arm --variant v8 \
-           ${REPO}:${VERSION} ${REPO}:${VERSION}-arm64v8
-    docker manifest annotate --arch arm64 --variant v8 \
-           ${REPO}:${VERSION} ${REPO}:${VERSION}-arm64v8
-    docker manifest push --purge ${REPO}:${VERSION}
+    docker manifest push --purge ${REPO}:${manifest_version}${suffix}
+}
 
-    manifest="${REPO}:${VERSION}-profiling"
-    echo "Creating manifest: ${manifest}"
-    docker manifest create ${manifest} \
-           -a ${REPO}:${VERSION}-amd64-profiling \
-           -a ${REPO}:${VERSION}-arm32v6-profiling \
-           -a ${REPO}:${VERSION}-arm64v8-profiling
-    docker manifest push --purge ${manifest}
+if [ "${push}" = "yes" ]; then
+    available_archs=()
 
-    # Create and push the manifest for the major version.
-    docker manifest create ${REPO}:${MAJOR} \
-           -a ${REPO}:${VERSION}-amd64 \
-           -a ${REPO}:${VERSION}-arm32v6 \
-           -a ${REPO}:${VERSION}-arm64v8
-    docker manifest annotate --arch arm --variant v6 \
-           ${REPO}:${MAJOR} ${REPO}:${VERSION}-arm32v6
-    docker manifest annotate --arch arm --variant v8 \
-           ${REPO}:${MAJOR} ${REPO}:${VERSION}-arm64v8
-    docker manifest annotate --arch arm64 --variant v8 \
-           ${REPO}:${MAJOR} ${REPO}:${VERSION}-arm64v8
-    docker manifest push --purge ${REPO}:${MAJOR}
+    for arch in ${archs[@]}; do
+        if test -e "Dockerfile.${arch}"; then
+            available_archs+=(${arch})
+            tag="${REPO}:${VERSION}-${arch}"
+            echo "Pushing ${tag}"
+            docker push ${tag}
 
-    manifest="${REPO}:${MAJOR}-profiling"
-    echo "Creating manifest: ${manifest}"
-    docker manifest create ${manifest} \
-           -a ${REPO}:${VERSION}-amd64-profiling \
-           -a ${REPO}:${VERSION}-arm32v6-profiling \
-           -a ${REPO}:${VERSION}-arm64v8-profiling
-    docker manifest push --purge ${manifest}
+            tag="${REPO}:${VERSION}-${arch}-profiling"
+            echo "Pushing ${tag}"
+            docker push ${tag}
+        fi
+    done
+
+    push_manifest "${VERSION}" "" "${available_archs[@]}"
+    push_manifest "${MAJOR}" "" "${available_archs[@]}"
+
+    push_manifest "${VERSION}" "-profiling" "${available_archs[@]}"
+    push_manifest "${MAJOR}" "-profiling" "${available_archs[@]}"
 
     if [ "${MAJOR}" = "${LATEST}" ]; then
-        for arch in ${archs[@]}; do
-            docker tag ${REPO}:${VERSION}-${arch} ${REPO}:latest-${arch}
-            docker push ${REPO}:latest-${arch}
-        done
-        docker manifest create ${REPO}:latest \
-               -a ${REPO}:${VERSION}-amd64 \
-               -a ${REPO}:${VERSION}-arm32v6 \
-               -a ${REPO}:${VERSION}-arm64v8
-        docker manifest annotate --arch arm --variant v6 \
-               ${REPO}:latest ${REPO}:${VERSION}-arm32v6
-        docker manifest annotate --arch arm --variant v8 \
-               ${REPO}:latest ${REPO}:${VERSION}-arm64v8
-        docker manifest annotate --arch arm64 --variant v8 \
-               ${REPO}:latest ${REPO}:${VERSION}-arm64v8
-        docker manifest push --purge ${REPO}:latest
-
-        # Profiling.
-        docker manifest create ${REPO}:latest-profiling \
-               -a ${REPO}:${VERSION}-amd64-profiling \
-               -a ${REPO}:${VERSION}-arm32v6-profiling \
-               -a ${REPO}:${VERSION}-arm64v8-profiling
-        docker manifest push --purge ${REPO}:latest-profiling
+        push_manifest "latest" "" "${available_archs[@]}"
+        push_manifest "latest" "-profiling" "${available_archs[@]}"
     fi
 fi
