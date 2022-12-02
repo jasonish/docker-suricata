@@ -5,14 +5,13 @@
 - master: The latest code from the git master branch.
 - latest: The latest release version (currently 6.0)
 - 6.0: The latest 6.0 patch release.
-- 5.0: The latest 5.0 patch release.
 
 Specific version tags also exist for versions 4.1.5 and newer.
 
 Examples:
 
     docker pull jasonish/suricata:latest
-    docker pull jasonish/suricata:6.0.4
+    docker pull jasonish/suricata:6.0.9
 
 The images are rebuilt and pushed to Docker Hub daily to ensure they
 are using the most up to date packages of the base OS, and in the case
