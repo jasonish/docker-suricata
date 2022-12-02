@@ -128,16 +128,13 @@ RUN \
         tcpdump \
         which \
         zlib && \
+        if [ "$(arch)" = "x86_64" ]; then dnf -y install hyperscan; fi && \
         dnf clean all && \
         find /etc/logrotate.d -type f -not -name suricata -delete
 
-RUN if [ "$(arch)" = "x86_64" ]; then \
-       dnf -y install hyperscan; \
-fi
-
 COPY --from=builder /fakeroot /
 
-# Create the directories that didn't get coped from the previous stage.
+# Create the directories that didn't get copied from the previous stage.
 RUN mkdir -p /var/log/suricata /var/run/suricata /var/lib/suricata
 
 COPY /update.yaml /etc/suricata/update.yaml
