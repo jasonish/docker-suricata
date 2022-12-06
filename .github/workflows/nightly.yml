@@ -4,6 +4,7 @@ on:
   schedule:
     # 3:33am wherever this is run...
     - cron: "7 21 * * *"
+  workflow_dispatch:
 
 jobs:
   build-master:
