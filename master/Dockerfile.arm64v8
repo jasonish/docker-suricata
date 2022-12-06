@@ -1,14 +1,16 @@
-FROM arm64v8/almalinux:8 AS builder
+FROM docker.io/arm64v8/almalinux:9 AS builder
 
-RUN \
-        dnf -y update && \
-        dnf -y install epel-release dnf-plugins-core && \
-        dnf config-manager --set-enabled powertools
+ENV CARGO_NET_GIT_FETCH_WITH_CLI=true
+
+RUN dnf -y update
+RUN dnf -y install epel-release dnf-plugins-core
+RUN dnf config-manager --set-enabled crb
 
 RUN dnf -y install \
         autoconf \
         automake \
         cargo \
+        cbindgen \
         diffutils \
         elfutils-libelf-devel \
         file \
@@ -51,10 +53,6 @@ fi
 
 ARG VERSION
 
-RUN if [ "${VERSION}" = "master" ]; then \
-        cargo install --root /usr/local cbindgen; \
-fi
-
 WORKDIR /src
 
 RUN if [ "${VERSION}" = "master" ]; then \
@@ -93,7 +91,8 @@ RUN make install install-conf DESTDIR=/fakeroot
 # next stage.
 RUN rm -rf /fakeroot/var
 
-FROM almalinux/arm64v8:8-base AS runner
+FROM docker.io/almalinux/arm64v8:9-base AS runner
+
 RUN \
         dnf -y update && \
         dnf -y install epel-release && \

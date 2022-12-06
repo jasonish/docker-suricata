@@ -1,4 +1,4 @@
-FROM arm64v8/alpine:latest AS builder
+FROM docker.io/arm64v8/alpine:latest AS builder
 
 RUN apk add \
         automake \
@@ -72,7 +72,7 @@ RUN make install install-conf DESTDIR=/fakeroot
 # next stage.
 RUN rm -rf /fakeroot/var
 
-FROM arm64v8/alpine:latest AS runner
+FROM docker.io/arm64v8/alpine:latest AS runner
 
 RUN apk add \
         bash \

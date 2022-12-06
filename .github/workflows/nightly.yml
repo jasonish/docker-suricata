@@ -10,21 +10,22 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        arch: [amd64, arm32v6, arm64v8]
+        arch: [amd64, arm64v8]
+        arg: [~, "profiling"]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
-      - run: bash -x ../build.sh ${{ matrix.arch }}
-        working-directory: master
       - name: Docker Hub Login
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
-      - run: docker push jasonish/suricata:master-${{ matrix.arch }}
-      - run: docker push jasonish/suricata:master-${{ matrix.arch }}-profiling
+      - run: ../deploy.sh --build --push ${{ matrix.arch }} ${{ matrix.arg }}
+        working-directory: master
+      # - run: docker push jasonish/suricata:master-${{ matrix.arch }}
+      # - run: docker push jasonish/suricata:master-${{ matrix.arch }}-profiling
 
   push-master:
     runs-on: ubuntu-20.04
@@ -37,5 +38,5 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
-      - run: ../build.sh --push --manifest-only
+      - run: ../deploy.sh --manifest
         working-directory: master

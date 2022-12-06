@@ -2,8 +2,9 @@
 
 set -e
 
-VERSIONS="master 6.0 5.0"
+VERSIONS="master 7.0 6.0"
 
 for v in ${VERSIONS}; do
-    (cd $v && ../build.sh $@)
+    echo "$0: Building ${v}"
+    (cd $v && ../deploy.sh $@)
 done

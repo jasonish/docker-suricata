@@ -1,4 +1,4 @@
-FROM arm32v6/alpine:latest AS builder
+FROM docker.io/arm32v6/alpine:latest AS builder
 
 ENV CARGO_NET_GIT_FETCH_WITH_CLI=true
 RUN apk update
@@ -74,7 +74,7 @@ RUN make install install-conf DESTDIR=/fakeroot
 # next stage.
 RUN rm -rf /fakeroot/var
 
-FROM arm32v6/alpine:latest AS runner
+FROM docker.io/arm32v6/alpine:latest AS runner
 
 RUN apk add \
         bash \
