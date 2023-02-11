@@ -10,6 +10,10 @@ CORES=$(cat /proc/cpuinfo | grep ^processor | wc -l)
 ARCHS=(amd64 arm64v8 arm32v6)
 DOCKER=docker
 
+BUILT_IMAGES=()
+PUSHED_IMAGES=()
+PUSHED_MANIFESTS=()
+
 args=()
 
 while [ "$#" -gt 0 ]; do
@@ -75,8 +79,11 @@ build() {
         -f Dockerfile.${arch} \
         .
 
+    BUILT_IMAGES+=("${tag}")
+
     if [ "${push}" = "yes" ]; then
         ${DOCKER} push ${tag}
+        PUSHED_IMAGES+=("${tag}")
     fi
 }
 
@@ -91,12 +98,15 @@ manifest() {
         fi
     done
 
-    echo "Pushing manifest ${REPO}:${version}${variant}"
+    manifest_name="${REPO}:${version}${variant}"
+
+    echo "Pushing manifest ${manifest_name}"
+    PUSHED_MANIFESTS+=("${manifest_name}")
     if [ "${DOCKER}" = "docker" ]; then
-        ${DOCKER} manifest push "${REPO}:${version}${variant}"
+        ${DOCKER} manifest push "${manifest_name}"
     elif [ "${DOCKER}" = "podman" ]; then
-        ${DOCKER} manifest push --purge "${REPO}:${version}${variant}" \
-            docker://"${REPO}:${version}${variant}"
+        ${DOCKER} manifest push --purge "${manifest_name}" \
+            docker://"${manifest_name}"
     else
         echo "error: unsupported docker command: ${DOCKER}"
         exit 1
@@ -127,4 +137,23 @@ if [ "${manifest}" = "yes" ]; then
         manifest latest
         manifest latest "-profiling"
     fi
+fi
+
+echo "Tags built:"
+for tag in "${BUILT_IMAGES[@]}"; do
+    echo "- ${tag}"
+done
+
+if [ "${PUSHED_IMAGES}" ]; then
+    echo "Tags pushed:"
+    for tag in "${PUSHED_IMAGES[@]}"; do
+        echo "- ${tag}"
+    done
+fi
+
+if [ "${PUSHED_MANIFESTS}" ]; then
+    echo "Manifests pushed:"
+    for tag in "${PUSHED_MANIFESTS[@]}"; do
+        echo "- ${tag}"
+    done
 fi
