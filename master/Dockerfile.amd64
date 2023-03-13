@@ -11,6 +11,7 @@ RUN dnf -y install \
         cargo \
         cbindgen \
         diffutils \
+        dpdk-devel \
         elfutils-libelf-devel \
         file \
         file-devel \
@@ -38,6 +39,7 @@ RUN dnf -y install \
         nspr-devel \
         nss-devel \
         nss-softokn-devel \
+        numactl-devel \
         pcre2-devel \
         pkgconfig \
         python3-devel \
@@ -78,6 +80,7 @@ RUN ./configure \
         --enable-hiredis \
         --enable-geoip \
         --enable-ebpf \
+	--enable-dpdk \
         ${CONFIGURE_ARGS}
 
 ARG CORES=2
@@ -97,6 +100,7 @@ RUN \
         dnf -y install epel-release && \
         dnf -y install \
         cronie \
+	dpdk \
         elfutils-libelf \
         file \
         findutils \
@@ -119,6 +123,7 @@ RUN \
         net-tools \
         nss \
         nss-softokn \
+        numactl \
         pcre2 \
         procps-ng \
         python3 \
@@ -157,3 +162,6 @@ VOLUME /etc/suricata
 
 COPY /docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
+
+RUN /usr/bin/suricata --build-info
+
