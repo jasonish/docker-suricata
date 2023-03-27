@@ -49,7 +49,7 @@ RUN dnf -y install \
         zlib-devel
 
 RUN if [ "$(arch)" = "x86_64" ]; then \
-       dnf -y install hyperscan-devel; \
+       dnf -y install https://kojipkgs.fedoraproject.org/packages/hyperscan/5.4.0/4.el9/x86_64/hyperscan-5.4.0-4.el9.x86_64.rpm https://kojipkgs.fedoraproject.org/packages/hyperscan/5.4.0/4.el9/x86_64/hyperscan-devel-5.4.0-4.el9.x86_64.rpm; \
 fi
 
 ARG VERSION
@@ -131,7 +131,7 @@ RUN \
         tcpdump \
         which \
         zlib && \
-        if [ "$(arch)" = "x86_64" ]; then dnf -y install hyperscan; fi && \
+        if [ "$(arch)" = "x86_64" ]; then dnf -y install https://kojipkgs.fedoraproject.org/packages/hyperscan/5.4.0/4.el9/x86_64/hyperscan-5.4.0-4.el9.x86_64.rpm; fi && \
         dnf clean all && \
         find /etc/logrotate.d -type f -not -name suricata -delete
 
