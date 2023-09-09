@@ -154,6 +154,7 @@ RUN useradd --system --create-home suricata && \
 
 VOLUME /var/log/suricata
 VOLUME /var/lib/suricata
+VOLUME /var/run/suricata
 VOLUME /etc/suricata
 
 COPY /docker-entrypoint.sh /
