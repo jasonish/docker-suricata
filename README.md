@@ -2,21 +2,17 @@
 
 ## Docker Tags (Suricata Versions)
 
-- master: The latest code from the git master branch.
-- latest: The latest release version (currently 6.0)
-- 6.0: The latest 6.0 patch release.
+- master: The latest code from the git master branch
+- latest: The latest release version (currently 7.0)
+- 7.0: The latest 7.0 patch release
+- 6.0: The latest 6.0 patch release
 
 Specific version tags also exist for versions 4.1.5 and newer.
 
 Examples:
 
     docker pull jasonish/suricata:latest
-    docker pull jasonish/suricata:6.0.9
-
-The images are rebuilt and pushed to Docker Hub daily to ensure they
-are using the most up to date packages of the base OS, and in the case
-of the `master` tag, to use the latest Suricata code for the git
-master branch.
+    docker pull jasonish/suricata:6.0.15
 
 Tags without an architecture like `amd64` or `arm64v8` are multi-architecture
 image manifests. For the most part Docker will do the right thing, however if
@@ -216,6 +212,30 @@ This will leave you with a directory containing the default configuration files
 from the container.
 
 ## Building
+
+The Dockerfiles and scripts in this repo are designed around building
+multi-architecture container manifests in a somewhat automated
+fashion. Due to this the Dockerfiles are not usable as-is.
+
+### Building x86_64 (amd64) Images
+
+If all you want to do is build an x86_64 image, the following commands
+should work:
+
+```
+cd 7.0
+../build.sh
+```
+
+If on ARM64:
+
+```
+cd 7.0
+ARCH=arm64v8 ../build.sh
+```
+
+It is planned to keep the Dockerfiles in a state that are directly
+usable without any wrapper scripts.
 
 ### Prepare to Build ARM images on x86_64
 

@@ -8,19 +8,17 @@ on:
 
 jobs:
 
-  # Build versioned releases. We don't push these on every build.
   build-6-0:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
         arch: [amd64, arm32v6, arm64v8]
-        arg: [~, "profiling"]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
-      - run: ../deploy.sh --build ${{ matrix.arch }} ${{ matrix.arg }}
+      - run: ../deploy.sh --build ${{ matrix.arch }}
         working-directory: "6.0"
 
   build-7-0:
@@ -28,111 +26,23 @@ jobs:
     strategy:
       matrix:
         arch: [amd64, arm64v8]
-        arg: [~, "profiling"]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
-      - run: ../deploy.sh --build ${{ matrix.arch }} ${{ matrix.arg}}
+      - run: ../deploy.sh --build ${{ matrix.arch }}
         working-directory: "7.0"
 
-  # Build for master. We push these on every build to make sure they
-  # are up to date.
   build-master:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
         arch: [amd64, arm64v8]
-        arg: [~, "profiling"]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
-
-      # -
-      #   name: Login to GitHub Container Registry
-      #   uses: docker/login-action@v2
-      #   with:
-      #     registry: ghcr.io
-      #     username: ${{ github.actor }}
-      #     password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Docker Hub Login
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
-
-      - run: ../deploy.sh --build --push ${{ matrix.arch }} ${{ matrix.arg}}
+      - run: ../deploy.sh --build ${{ matrix.arch }}
         working-directory: "master"
-        
-      # - uses: actions/checkout@v2
-      # - uses: docker/setup-qemu-action@v1
-      # - uses: docker/setup-buildx-action@v1
-
-      # - run: |
-      #     docker pull ghcr.io/jasonish/suricata:master-${{ matrix.arch }}-builder || true
-      #     docker image tag ghcr.io/jasonish/suricata:master-${{ matrix.arch }}-builder \
-      #         jasonish/suricata:master-${{ matrix.arch }}-builder || true
-
-      #     docker pull ghcr.io/jasonish/suricata:master-${{ matrix.arch }}-profiling-builder || true
-      #     docker image tag ghcr.io/jasonish/suricata:master-${{ matrix.arch }}-profiling-builder \
-      #         jasonish/suricata:master-${{ matrix.arch }}-profiling-builder || true
-
-      # - run: ../build.sh ${{ matrix.arch }}
-      #   working-directory: master
-
-      # - run: |
-      #     docker image tag jasonish/suricata:master-${{ matrix.arch }}-builder \
-      #         ghcr.io/jasonish/suricata:master-${{ matrix.arch }}-builder
-      #     docker push ghcr.io/jasonish/suricata:master-${{ matrix.arch }}-builder
-      
-      #     docker image tag jasonish/suricata:master-${{ matrix.arch }}-profiling-builder \
-      #         ghcr.io/jasonish/suricata:master-${{ matrix.arch }}-profiling-builder
-      #     docker push ghcr.io/jasonish/suricata:master-${{ matrix.arch }}-profiling-builder
-
-      # - name: Docker Hub Login
-      #   uses: docker/login-action@v1
-      #   with:
-      #     username: ${{ secrets.DOCKER_USERNAME }}
-      #     password: ${{ secrets.DOCKER_TOKEN }}
-      # - run: docker push jasonish/suricata:master-${{ matrix.arch }}
-      # - run: docker push jasonish/suricata:master-${{ matrix.arch }}-profiling
-      # # Rebuild for quay.io, this should be quick as its essentially retagging
-      # # the already built images.
-      # - run: REPO=quay.io/jasonish/suricata ../build.sh ${{ matrix.arch}}
-      #   working-directory: master
-      # - name: Quay.io Login
-      #   uses: docker/login-action@v1
-      #   with:
-      #     registry: quay.io
-      #     username: ${{ secrets.QUAY_USERNAME }}
-      #     password: ${{ secrets.QUAY_PASSWORD }}
-      # - run: docker push quay.io/jasonish/suricata:master-${{ matrix.arch }}
-      # - run: docker push quay.io/jasonish/suricata:master-${{ matrix.arch }}-profiling
-
-  push-master:
-    runs-on: ubuntu-20.04
-    needs: [build-master]
-    steps:
-      - run: echo "All containers built."
-      - uses: actions/checkout@v2
-      - name: Docker Hub Login
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
-      - run: ../deploy.sh --manifest
-        working-directory: master
-      # - run: ../build.sh --push --manifest-only
-      #   working-directory: master
-      # - name: Quay.io Login
-      #   uses: docker/login-action@v1
-      #   with:
-      #     registry: quay.io
-      #     username: ${{ secrets.QUAY_USERNAME }}
-      #     password: ${{ secrets.QUAY_PASSWORD }}
-      # - run: REPO=quay.io/jasonish/suricata ../build.sh --manifest-only
-      #   working-directory: master
