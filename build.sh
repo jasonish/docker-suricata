@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 
 set -e
+set -x
 
 version=$(cat VERSION)
 cores=$(cat /proc/cpuinfo | grep ^processor | wc -l)

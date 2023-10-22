@@ -14,7 +14,7 @@ LATEST=$(cat ../LATEST)
 ARCHS=(amd64 arm64v8)
 DOCKER=docker
 
-TAG=()
+TAGS=()
 PUSHED_IMAGES=()
 PUSHED_MANIFESTS=()
 
@@ -59,11 +59,11 @@ build() {
 
     tag="${REPO}:${VERSION}-${arch}"
     TAG=${tag} ARCH=${arch} ../build.sh
-    TAG+=("${tag}")
+    TAGS+=("${tag}")
 
     tag="${REPO}:${VERSION}-${arch}-profiling"
     TAG=${tag} ARCH=${arch} ../build.sh profiling
-    TAG+=("${tag}")
+    TAGS+=("${tag}")
 }
 
 manifest() {
@@ -104,7 +104,7 @@ if [[ "${build}" = "yes" ]]; then
 fi
 
 if [[ "${push}" = "yes" ]]; then
-    for tag in "${TAG[@]}"; do
+    for tag in "${TAGS[@]}"; do
 	echo "===> Pushing ${tag}"
 	${DOCKER} push ${tag}
 	PUSHED_IMAGES+=("${tag}")
@@ -127,7 +127,7 @@ if [[ "${manifest}" = "yes" ]]; then
 fi
 
 echo "Tags built:"
-for tag in "${TAG[@]}"; do
+for tag in "${TAGS[@]}"; do
     echo "- ${tag}"
 done
 
