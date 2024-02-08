@@ -20,6 +20,10 @@ PUSHED_MANIFESTS=()
 
 args=()
 
+if test -e Dockerfile.arm32v6; then
+    ARCHS+=(arm32v6)
+fi
+
 while [ "$#" -gt 0 ]; do
     key="$1"
     case "${key}" in
