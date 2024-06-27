@@ -77,7 +77,7 @@ manifest() {
     for arch in "${ARCHS[@]}"; do
         if test -e Dockerfile.${arch}; then
             ${DOCKER} manifest create "${REPO}:${version}${variant}" \
-                -a "${REPO}:${VERSION}-${arch}${variant}"
+                      -a "${REPO}:${VERSION}-${arch}${variant}"
         fi
     done
 
@@ -89,44 +89,44 @@ manifest() {
         ${DOCKER} manifest push "${manifest_name}"
     elif [ "${DOCKER}" = "podman" ]; then
         ${DOCKER} manifest push --purge "${manifest_name}" \
-            docker://"${manifest_name}"
+                  docker://"${manifest_name}"
     else
         echo "error: unsupported docker command: ${DOCKER}"
         exit 1
     fi
 }
- 
+
 if [[ "${build}" = "yes" ]]; then
     for repo in "${REPOS[@]}"; do
-	for arch in "${ARCHS[@]}"; do
+	      for arch in "${ARCHS[@]}"; do
             if test -e Dockerfile.${arch}; then
-		REPO=${repo} build "${arch}"
-		REPO=${repo} build "${arch}" "profiling"
+		            REPO=${repo} build "${arch}"
+		            REPO=${repo} build "${arch}" "profiling"
             fi
-	done
+	      done
     done
 fi
 
 if [[ "${push}" = "yes" ]]; then
     for tag in "${TAGS[@]}"; do
-	echo "===> Pushing ${tag}"
-	${DOCKER} push ${tag}
-	PUSHED_IMAGES+=("${tag}")
+	      echo "===> Pushing ${tag}"
+	      ${DOCKER} push ${tag}
+	      PUSHED_IMAGES+=("${tag}")
     done
 fi
 
 if [[ "${manifest}" = "yes" ]]; then
     for repo in "${REPOS[@]}"; do
-	REPO=${repo} manifest ${VERSION}
-	REPO=${repo} manifest ${VERSION} "-profiling"
-	if [ "${MAJOR}" != "${VERSION}" ]; then
-	    REPO=${repo} manifest ${MAJOR}
-	    REPO=${repo} manifest ${MAJOR} "-profiling"
-	fi
-	if [ "${MAJOR}" = "${LATEST}" ]; then
-	    REPO=${repo} manifest latest
-	    REPO=${repo} manifest latest "-profiling"
-	fi
+	      REPO=${repo} manifest ${VERSION}
+	      REPO=${repo} manifest ${VERSION} "-profiling"
+	      if [ "${MAJOR}" != "${VERSION}" ]; then
+	          REPO=${repo} manifest ${MAJOR}
+	          REPO=${repo} manifest ${MAJOR} "-profiling"
+	      fi
+	      if [ "${MAJOR}" = "${LATEST}" ]; then
+	          REPO=${repo} manifest latest
+	          REPO=${repo} manifest latest "-profiling"
+	      fi
     done
 fi
 
