@@ -31,6 +31,8 @@ while [ "$#" -gt 0 ]; do
 done
 
 ${docker} build --rm \
+    --pull \
+    --platform linux/${arch} \
 	  --build-arg VERSION=${version} \
 	  --build-arg CORES=${cores} \
 	  --build-arg CONFIGURE_ARGS="${configure_args}" \

@@ -1,4 +1,4 @@
-FROM docker.io/arm64v8/almalinux:9 AS builder
+FROM almalinux:9 AS builder
 
 ENV CARGO_NET_GIT_FETCH_WITH_CLI=true
 
@@ -91,7 +91,7 @@ RUN make install install-conf DESTDIR=/fakeroot
 # next stage.
 RUN rm -rf /fakeroot/var
 
-FROM docker.io/almalinux/arm64v8:9-base AS runner
+FROM almalinux/9-base:latest AS runner
 
 RUN \
         dnf -y update && \

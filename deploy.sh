@@ -11,7 +11,7 @@ REPO=${REPO:-"docker.io/jasonish/suricata"}
 MAJOR=$(basename $(pwd))
 VERSION=$(cat VERSION)
 LATEST=$(cat ../LATEST)
-ARCHS=(amd64 arm64v8)
+ARCHS=(amd64 arm64)
 DOCKER=docker
 
 TAGS=()
@@ -20,8 +20,8 @@ PUSHED_MANIFESTS=()
 
 args=()
 
-if test -e Dockerfile.arm32v6; then
-    ARCHS+=(arm32v6)
+if test -e Dockerfile.arm32; then
+    ARCHS+=(arm32)
 fi
 
 while [ "$#" -gt 0 ]; do
