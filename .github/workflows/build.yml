@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         version: ["master", "7.0"]
-        arch: [amd64, arm64v8]
+        arch: [amd64, arm64]
         variant: [~, profiling]
       fail-fast: false
     steps:
