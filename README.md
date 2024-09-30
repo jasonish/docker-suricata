@@ -5,7 +5,6 @@
 - master: The latest code from the git master branch
 - latest: The latest release version (currently 7.0)
 - 7.0: The latest 7.0 patch release
-- 6.0: The latest 6.0 patch release
 
 Specific version tags also exist for versions 4.1.5 and newer.
 
