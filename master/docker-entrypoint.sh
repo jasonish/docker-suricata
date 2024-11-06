@@ -36,7 +36,7 @@ run_as_user="yes"
 
 check_for_cap() {
     echo -n "Checking for capability $1: "
-    if getpcaps 1 2>&1 | grep -q "$1"; then
+    if getpcaps 0 2>&1 | grep -q "$1"; then
         echo "yes"
         return 0
     else
