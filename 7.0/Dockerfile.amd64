@@ -1,4 +1,4 @@
-FROM docker.io/amd64/almalinux:9 AS builder
+FROM almalinux:9 AS builder
 
 RUN \
         dnf -y update && \
@@ -49,7 +49,7 @@ RUN dnf -y install \
         zlib-devel
 
 RUN if [ "$(arch)" = "x86_64" ]; then \
-       dnf -y install https://kojipkgs.fedoraproject.org/packages/hyperscan/5.4.0/4.el9/x86_64/hyperscan-5.4.0-4.el9.x86_64.rpm https://kojipkgs.fedoraproject.org/packages/hyperscan/5.4.0/4.el9/x86_64/hyperscan-devel-5.4.0-4.el9.x86_64.rpm; \
+    dnf -y install hyperscan; \
 fi
 
 ARG VERSION
@@ -93,7 +93,7 @@ RUN make install install-conf DESTDIR=/fakeroot
 # next stage.
 RUN rm -rf /fakeroot/var
 
-FROM docker.io/almalinux/amd64:9-base AS runner
+FROM almalinux/9-base:latest AS runner
 
 RUN \
         dnf -y update && \
@@ -131,7 +131,7 @@ RUN \
         tcpdump \
         which \
         zlib && \
-        if [ "$(arch)" = "x86_64" ]; then dnf -y install https://kojipkgs.fedoraproject.org/packages/hyperscan/5.4.0/4.el9/x86_64/hyperscan-5.4.0-4.el9.x86_64.rpm; fi && \
+        if [ "$(arch)" = "x86_64" ]; then dnf -y install hyperscan; fi && \
         dnf clean all && \
         find /etc/logrotate.d -type f -not -name suricata -delete
 

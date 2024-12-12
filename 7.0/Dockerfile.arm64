@@ -2,9 +2,10 @@ FROM almalinux:9 AS builder
 
 ENV CARGO_NET_GIT_FETCH_WITH_CLI=true
 
-RUN dnf -y update
-RUN dnf -y install epel-release dnf-plugins-core
-RUN dnf config-manager --set-enabled crb
+RUN \
+        dnf -y update && \
+        dnf -y install epel-release dnf-plugins-core && \
+        dnf config-manager --set-enabled crb
 
 RUN dnf -y install \
         autoconf \
@@ -12,6 +13,7 @@ RUN dnf -y install \
         cargo \
         cbindgen \
         diffutils \
+        dpdk-devel \
         elfutils-libelf-devel \
         file \
         file-devel \
@@ -39,6 +41,7 @@ RUN dnf -y install \
         nspr-devel \
         nss-devel \
         nss-softokn-devel \
+        numactl-devel \
         pcre2-devel \
         pkgconfig \
         python3-devel \
@@ -48,7 +51,7 @@ RUN dnf -y install \
         zlib-devel
 
 RUN if [ "$(arch)" = "x86_64" ]; then \
-       dnf -y install hyperscan-devel; \
+    dnf -y install hyperscan; \
 fi
 
 ARG VERSION
@@ -79,6 +82,7 @@ RUN ./configure \
         --enable-hiredis \
         --enable-geoip \
         --enable-ebpf \
+	--enable-dpdk \
         ${CONFIGURE_ARGS}
 
 ARG CORES=2
@@ -98,6 +102,7 @@ RUN \
         dnf -y install epel-release && \
         dnf -y install \
         cronie \
+	dpdk \
         elfutils-libelf \
         file \
         findutils \
@@ -120,6 +125,7 @@ RUN \
         net-tools \
         nss \
         nss-softokn \
+        numactl \
         pcre2 \
         procps-ng \
         python3 \
@@ -159,3 +165,6 @@ VOLUME /etc/suricata
 
 COPY /docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
+
+RUN /usr/bin/suricata --build-info
+
