@@ -63,4 +63,14 @@ else
     ARGS="${ARGS} --user suricata --group suricata"
 fi
 
-exec /usr/bin/suricata ${ARGS} ${SURICATA_OPTIONS} $@
+# turn on bash's job control
+set -m
+
+# run primary process
+/usr/bin/suricata ${ARGS} ${SURICATA_OPTIONS} $@ &
+
+# run helper processes
+crond
+
+# bring the primary process back into the foreground
+fg %1

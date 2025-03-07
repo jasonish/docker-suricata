@@ -108,6 +108,14 @@ to test, logrotate can run in a force and verbose mode:
 docker exec CONTAINER_ID logrotate -vf /etc/logrotate.d/suricata
 ```
 
+to run logrotate automatically create `suricata` bash script, with executable persmissins, in one of `/etc/cron.*` directories (e.g. `/etc/cron.hourly/suricata`):
+
+```
+#!/bin/bash
+
+logrotate /etc/logrotate.d/suricata
+```
+
 ## Volumes
 
 The Suricata container exposes the following volumes:
