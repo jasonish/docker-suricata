@@ -70,7 +70,9 @@ set -m
 /usr/bin/suricata ${ARGS} ${SURICATA_OPTIONS} $@ &
 
 # run helper processes
-crond
+if [[ "$ENABLE_CRON" == "yes" ]]; then
+    crond
+fi
 
 # bring the primary process back into the foreground
 fg %1

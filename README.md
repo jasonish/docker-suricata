@@ -108,7 +108,7 @@ to test, logrotate can run in a force and verbose mode:
 docker exec CONTAINER_ID logrotate -vf /etc/logrotate.d/suricata
 ```
 
-to run logrotate automatically create `suricata` bash script, with executable persmissins, in one of `/etc/cron.*` directories (e.g. `/etc/cron.hourly/suricata`):
+to run logrotate automatically set `ENABLE_CRON=yes` enviroment variable and create `suricata` bash script, with executable persmissins, in one of `/etc/cron.*` directories (e.g. `/etc/cron.hourly/suricata`):
 
 ```
 #!/bin/bash
