@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 set -e
 
@@ -63,16 +63,10 @@ else
     ARGS="${ARGS} --user suricata --group suricata"
 fi
 
-# turn on bash's job control
-set -m
-
-# run primary process
-/usr/bin/suricata ${ARGS} ${SURICATA_OPTIONS} $@ &
-
 # run helper processes
 if [[ "$ENABLE_CRON" == "yes" ]]; then
     crond
 fi
 
-# bring the primary process back into the foreground
-fg %1
+# run primary process
+exec /usr/bin/suricata ${ARGS} ${SURICATA_OPTIONS} $@

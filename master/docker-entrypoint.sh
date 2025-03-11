@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 set -e
 
@@ -63,4 +63,10 @@ else
     ARGS="${ARGS} --user suricata --group suricata"
 fi
 
+# run helper processes
+if [[ "$ENABLE_CRON" == "yes" ]]; then
+    crond
+fi
+
+# run primary process
 exec /usr/bin/suricata ${ARGS} ${SURICATA_OPTIONS} $@
