@@ -256,6 +256,10 @@ usable without any wrapper scripts.
 docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 ```
 
+#### On Arch
+
+- Install extra/qemu-user-static-binfmt
+
 ## License
 
 The build scripts, Dockerfiles and any other files in this repo are MIT licensed.
