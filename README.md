@@ -230,21 +230,19 @@ The Dockerfiles and scripts in this repo are designed around building
 multi-architecture container manifests in a somewhat automated
 fashion. Due to this the Dockerfiles are not usable as-is.
 
-### Building x86_64 (amd64) Images
-
 If all you want to do is build an x86_64 image, the following commands
 should work:
 
 ```
 cd 7.0
-../build.sh
+docker build --build-arg=$(cat VERSION) -f Dockerfile.amd64 .
 ```
 
-If on ARM64:
+For an Arm64 image:
 
 ```
 cd 7.0
-ARCH=arm64v8 ../build.sh
+docker build --build-arg=$(cat VERSION) -f Dockerfile.arm64 .
 ```
 
 It is planned to keep the Dockerfiles in a state that are directly
