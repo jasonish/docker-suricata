@@ -26,5 +26,5 @@ jobs:
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_ROBOT_TOKEN }}
   
-      - run: ../deploy.sh --build --push --manifest
+      - run: ../build.sh --build --push --manifest
         working-directory: master
