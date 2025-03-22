@@ -7,6 +7,7 @@ DOCKER=docker
 CORES=$(nproc --all)
 MAJOR=$(basename $(pwd))
 LATEST=$(cat ../LATEST)
+NOCACHE=""
 
 PUSH=no
 MANIFEST=no
@@ -26,6 +27,9 @@ while [ "$#" -gt 0 ]; do
         --manifest)
             MANIFEST="yes"
             ;;
+        --no-cache)
+            NOCACHE="--no-cache"
+            ;;
         *)
             args+=($key)
             ;;
@@ -38,7 +42,7 @@ PUSHED=()
 
 build() {
     configure_args="$1"
-    ${DOCKER} build \
+    ${DOCKER} build ${NOCACHE} \
               --rm \
               --pull \
               --build-arg VERSION=${VERSION} \
