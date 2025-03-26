@@ -23,13 +23,17 @@ docker pull jasonish/suricata:latest-amd64
 docker pull jasonish/suricata:6.0.4-arm64v8
 ```
 
-## Alternate Registry
+## Alternate Registries
 
-In addition to Docker Hub, these containers are also pushed to quay.io and can
-be pulled like:
+In addition to Docker Hub, these containers are also pushed to quay.io
+and ghcr.io and can be pulled like:
 
 ```
 docker pull quay.io/jasonish/suricata:latest
+```
+
+```
+docker pull ghcr.io/jasonish/suricata:latest
 ```
 
 ## Usage
