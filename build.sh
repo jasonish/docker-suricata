@@ -86,40 +86,40 @@ done
 if [[ "${MANIFEST}" = "yes" ]]; then
     for repo in "${REPOS[@]}"; do
         docker manifest create --amend \
-               ${repo}:7.0 \
-               ${repo}:7.0.9-amd64 \
-               ${repo}:7.0.9-arm64
-        docker manifest push ${repo}:7.0
+               ${repo}:${MAJOR} \
+               ${repo}:${VERSION}-amd64 \
+               ${repo}:${VERSION}-arm64
+        docker manifest push ${repo}:${MAJOR}
         
         docker manifest create --amend \
-               ${repo}:7.0-profiling \
-               ${repo}:7.0.9-amd64-profiling \
-               ${repo}:7.0.9-arm64-profiling
-        docker manifest push ${repo}:7.0-profiling
+               ${repo}:${MAJOR}-profiling \
+               ${repo}:${VERSION}-amd64-profiling \
+               ${repo}:${VERSION}-arm64-profiling
+        docker manifest push ${repo}:${MAJOR}-profiling
         
         docker manifest create --amend \
-               ${repo}:7.0.9 \
-               ${repo}:7.0.9-amd64 \
-               ${repo}:7.0.9-arm64
-        docker manifest push ${repo}:7.0.9
+               ${repo}:${VERSION} \
+               ${repo}:${VERSION}-amd64 \
+               ${repo}:${VERSION}-arm64
+        docker manifest push ${repo}:${VERSION}
         
         docker manifest create --amend \
-               ${repo}:7.0.9-profiling \
-               ${repo}:7.0.9-amd64-profiling \
-               ${repo}:7.0.9-arm64-profiling
-        docker manifest push ${repo}:7.0.9-profiling
+               ${repo}:${VERSION}-profiling \
+               ${repo}:${VERSION}-amd64-profiling \
+               ${repo}:${VERSION}-arm64-profiling
+        docker manifest push ${repo}:${VERSION}-profiling
         
         if [[ "${MAJOR}" = "${LATEST}" ]]; then
             docker manifest create --amend \
                    ${repo}:latest \
-                   ${repo}:7.0.9-amd64 \
-                   ${repo}:7.0.9-arm64
+                   ${repo}:${VERSION}-amd64 \
+                   ${repo}:${VERSION}-arm64
             docker manifest push ${repo}:latest
             
             docker manifest create --amend \
                    ${repo}:latest-profiling \
-                   ${repo}:7.0.9-amd64-profiling \
-                   ${repo}:7.0.9-arm64-profiling
+                   ${repo}:${VERSION}-amd64-profiling \
+                   ${repo}:${VERSION}-arm64-profiling
             docker manifest push ${repo}:latest-profiling
         fi
     done
