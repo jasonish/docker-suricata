@@ -49,7 +49,7 @@ RUN dnf -y install \
         zlib-devel
 
 RUN if [ "$(arch)" = "x86_64" ]; then \
-    dnf -y install hyperscan; \
+    dnf -y install hyperscan-devel; \
 fi
 
 ARG VERSION
@@ -86,6 +86,11 @@ RUN ./configure \
 ARG CORES=2
 
 RUN make -j "${CORES}"
+
+# Verify Hyperscan support is enabled.
+RUN if [ "$(arch)" = "x86_64" ]; then \
+    ./src/suricata --build-info | grep Hyperscan | grep yes; \
+fi
 
 RUN make install install-conf DESTDIR=/fakeroot
 
