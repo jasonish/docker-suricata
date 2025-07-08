@@ -85,24 +85,28 @@ done
 
 if [[ "${MANIFEST}" = "yes" ]]; then
     for repo in "${REPOS[@]}"; do
+        docker manifest rm ${repo}:${MAJOR} || true
         docker manifest create --amend \
                ${repo}:${MAJOR} \
                ${repo}:${VERSION}-amd64 \
                ${repo}:${VERSION}-arm64
         docker manifest push ${repo}:${MAJOR}
         
+        docker manifest rm ${repo}:${MAJOR}-profiling || true
         docker manifest create --amend \
                ${repo}:${MAJOR}-profiling \
                ${repo}:${VERSION}-amd64-profiling \
                ${repo}:${VERSION}-arm64-profiling
         docker manifest push ${repo}:${MAJOR}-profiling
         
+        docker manifest rm ${repo}:${VERSION} || true
         docker manifest create --amend \
                ${repo}:${VERSION} \
                ${repo}:${VERSION}-amd64 \
                ${repo}:${VERSION}-arm64
         docker manifest push ${repo}:${VERSION}
         
+        docker manifest rm ${repo}:${VERSION}-profiling || true
         docker manifest create --amend \
                ${repo}:${VERSION}-profiling \
                ${repo}:${VERSION}-amd64-profiling \
@@ -110,12 +114,14 @@ if [[ "${MANIFEST}" = "yes" ]]; then
         docker manifest push ${repo}:${VERSION}-profiling
         
         if [[ "${MAJOR}" = "${LATEST}" ]]; then
+            docker manifest rm ${repo}:latest || true
             docker manifest create --amend \
                    ${repo}:latest \
                    ${repo}:${VERSION}-amd64 \
                    ${repo}:${VERSION}-arm64
             docker manifest push ${repo}:latest
             
+            docker manifest rm ${repo}:latest-profiling || true
             docker manifest create --amend \
                    ${repo}:latest-profiling \
                    ${repo}:${VERSION}-amd64-profiling \
