@@ -4,6 +4,7 @@
 
 - master: The latest code from the git master branch
 - latest: The latest release version (currently 7.0)
+- 8.0: The latest 8.0 patch release
 - 7.0: The latest 7.0 patch release
 
 Specific version tags also exist for versions 4.1.5 and newer.
@@ -11,7 +12,7 @@ Specific version tags also exist for versions 4.1.5 and newer.
 Examples:
 
     docker pull jasonish/suricata:latest
-    docker pull jasonish/suricata:6.0.15
+    docker pull jasonish/suricata:7.0.11
 
 Tags without an architecture like `amd64` or `arm64v8` are multi-architecture
 image manifests. For the most part Docker will do the right thing, however if
