@@ -36,9 +36,6 @@ RUN dnf -y install \
         libtool \
         lz4-devel \
         make \
-        nspr-devel \
-        nss-devel \
-        nss-softokn-devel \
         pcre2-devel \
         pkgconfig \
         python3-devel \
@@ -118,8 +115,6 @@ RUN \
         logrotate \
         lz4 \
         net-tools \
-        nss \
-        nss-softokn \
         pcre2 \
         procps-ng \
         python3 \

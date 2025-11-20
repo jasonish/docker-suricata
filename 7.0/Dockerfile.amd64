@@ -123,8 +123,6 @@ RUN \
         logrotate \
         lz4 \
         net-tools \
-        nss \
-        nss-softokn \
         numactl \
         pcre2 \
         procps-ng \
