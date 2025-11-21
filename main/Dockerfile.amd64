@@ -21,7 +21,6 @@ RUN dnf -y install \
         hiredis-devel \
         jansson-devel \
         jq \
-        lua-devel \
         libbpf-devel \
         libtool \
         libyaml-devel \
@@ -46,16 +45,15 @@ RUN dnf -y install \
         zlib-devel
 
 RUN if [ "$(arch)" = "x86_64" ]; then \
-       dnf -y install https://kojipkgs.fedoraproject.org/packages/hyperscan/5.4.0/4.el9/x86_64/hyperscan-5.4.0-4.el9.x86_64.rpm https://kojipkgs.fedoraproject.org/packages/hyperscan/5.4.0/4.el9/x86_64/hyperscan-devel-5.4.0-4.el9.x86_64.rpm; \
+       dnf -y install hyperscan-devel; \
 fi
 
 ARG VERSION
 
 WORKDIR /src
 
-RUN if [ "${VERSION}" = "master" ]; then \
+RUN if [ "${VERSION}" = "main" ]; then \
 	git clone https://github.com/OISF/suricata.git suricata-${VERSION}; \
-	git clone https://github.com/OISF/libhtp.git suricata-${VERSION}/libhtp; \
         (cd suricata-${VERSION}/suricata-update && \
 		curl -L https://github.com/OISF/suricata-update/archive/master.tar.gz | tar zxf - --strip-components=1); \
 	(cd suricata-${VERSION} && ./autogen.sh); \
@@ -72,7 +70,6 @@ RUN ./configure \
         --prefix=/usr \
         --disable-shared \
         --disable-gccmarch-native \
-        --enable-lua \
         --enable-nfqueue \
         --enable-hiredis \
         --enable-geoip \
@@ -104,7 +101,6 @@ RUN \
         hiredis \
         iproute \
         jansson \
-        lua-libs \
         libbpf \
         libyaml \
         libnfnetlink \
@@ -126,7 +122,7 @@ RUN \
         tcpdump \
         which \
         zlib && \
-        if [ "$(arch)" = "x86_64" ]; then dnf -y install https://kojipkgs.fedoraproject.org/packages/hyperscan/5.4.0/4.el9/x86_64/hyperscan-5.4.0-4.el9.x86_64.rpm; fi && \
+        if [ "$(arch)" = "x86_64" ]; then dnf -y install hyperscan; fi && \
         dnf clean all && \
         find /etc/logrotate.d -type f -not -name suricata -delete
 

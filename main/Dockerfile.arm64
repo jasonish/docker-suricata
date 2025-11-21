@@ -21,7 +21,6 @@ RUN dnf -y install \
         hiredis-devel \
         jansson-devel \
         jq \
-        lua-devel \
         libbpf-devel \
         libtool \
         libyaml-devel \
@@ -52,7 +51,7 @@ ARG VERSION
 
 WORKDIR /src
 
-RUN if [ "${VERSION}" = "master" ]; then \
+RUN if [ "${VERSION}" = "main" ]; then \
 	git clone https://github.com/OISF/suricata.git suricata-${VERSION}; \
 	git clone https://github.com/OISF/libhtp.git suricata-${VERSION}/libhtp; \
         (cd suricata-${VERSION}/suricata-update && \
@@ -71,7 +70,6 @@ RUN ./configure \
         --prefix=/usr \
         --disable-shared \
         --disable-gccmarch-native \
-        --enable-lua \
         --enable-nfqueue \
         --enable-hiredis \
         --enable-geoip \
@@ -101,7 +99,6 @@ RUN \
         hiredis \
         iproute \
         jansson \
-        lua-libs \
         libbpf \
         libyaml \
         libnfnetlink \
