@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        version: ["master", "7.0", "8.0"]
+        version: ["main", "7.0", "8.0"]
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
