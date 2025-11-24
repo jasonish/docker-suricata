@@ -2,8 +2,8 @@
 
 ## Docker Tags (Suricata Versions)
 
-- master: The latest code from the git master branch
-- latest: The latest release version (currently 7.0)
+- main: The latest code from the git master branch
+- latest: The latest release version (currently 8.0)
 - 8.0: The latest 8.0 patch release
 - 7.0: The latest 7.0 patch release
 
