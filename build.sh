@@ -113,7 +113,27 @@ if [[ "${MANIFEST}" = "yes" ]]; then
                ${repo}:${VERSION}-arm64-profiling
         docker manifest push ${repo}:${VERSION}-profiling
         
+	if [[ "${MAJOR}" = "main" ]]; then
+	    echo "*** Tagging main as master"
+
+            docker manifest rm ${repo}:master || true
+            docker manifest create --amend \
+                   ${repo}:master \
+                   ${repo}:${VERSION}-amd64 \
+                   ${repo}:${VERSION}-arm64
+            docker manifest push ${repo}:master
+
+            docker manifest rm ${repo}:master-profiling || true
+            docker manifest create --amend \
+                   ${repo}:master-profiling \
+                   ${repo}:${VERSION}-amd64-profiling \
+                   ${repo}:${VERSION}-arm64-profiling
+            docker manifest push ${repo}:master-profiling
+	fi
+
         if [[ "${MAJOR}" = "${LATEST}" ]]; then
+            echo "*** Tagging ${MAJOR} as latest"
+
             docker manifest rm ${repo}:latest || true
             docker manifest create --amend \
                    ${repo}:latest \
