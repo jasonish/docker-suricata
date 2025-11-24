@@ -17,10 +17,11 @@ jobs:
     strategy:
       matrix:
         version: ["main", "7.0", "8.0"]
+        arch: ["amd64", "arm64"]
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
-      - run: ../build.sh
+      - run: ../build.sh --arch ${{ matrix.arch }}
         working-directory: ${{ matrix.version }}

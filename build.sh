@@ -18,6 +18,10 @@ REPOS=(
     "ghcr.io/jasonish/suricata"
 )
 
+ARCHES_ALL=("amd64" "arm64")
+
+ARCHES=()
+
 while [ "$#" -gt 0 ]; do
     key="$1"
     case "${key}" in
@@ -30,12 +34,27 @@ while [ "$#" -gt 0 ]; do
         --no-cache)
             NOCACHE="--no-cache"
             ;;
+        --arch)
+            shift
+            if [ "$#" -eq 0 ]; then
+                echo "error: --arch requires a value" >&2
+                exit 1
+            fi
+            ARCHES+=("$1")
+            ;;
+        --arch=*)
+            ARCHES+=("${key#*=}")
+            ;;
         *)
             args+=($key)
             ;;
     esac
     shift
 done
+
+if [ ${#ARCHES[@]} -eq 0 ]; then
+    ARCHES=("${ARCHES_ALL[@]}")
+fi
 
 BUILT=()
 PUSHED=()
@@ -58,7 +77,7 @@ build() {
 TAGS=()
 
 for repo in "${REPOS[@]}"; do
-    for arch in amd64 arm64; do
+    for arch in "${ARCHES[@]}"; do
         tag=${repo}:${VERSION}-${arch}
         arch=${arch} tag=${tag} build
 
@@ -150,4 +169,3 @@ if [[ "${MANIFEST}" = "yes" ]]; then
         fi
     done
 fi
-
