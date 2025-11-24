@@ -23,7 +23,6 @@ RUN dnf -y install \
         hiredis-devel \
         jansson-devel \
         jq \
-        lua-devel \
         libbpf-devel \
         libtool \
         libyaml-devel \
@@ -110,7 +109,6 @@ RUN \
         hiredis \
         iproute \
         jansson \
-        lua-libs \
         libbpf \
         libyaml \
         libnfnetlink \
