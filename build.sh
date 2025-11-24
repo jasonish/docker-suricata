@@ -12,6 +12,7 @@ NOCACHE=""
 PUSH=no
 MANIFEST=no
 BUILD=yes
+VARIANT=both
 
 REPOS=(
     "docker.io/jasonish/suricata"
@@ -49,6 +50,17 @@ while [ "$#" -gt 0 ]; do
         --arch=*)
             ARCHES+=("${key#*=}")
             ;;
+        --variant)
+            shift
+            if [ "$#" -eq 0 ]; then
+                echo "error: --variant requires a value" >&2
+                exit 1
+            fi
+            VARIANT="$1"
+            ;;
+        --variant=*)
+            VARIANT="${key#*=}"
+            ;;
         *)
             args+=($key)
             ;;
@@ -83,12 +95,16 @@ TAGS=()
 if [[ "${BUILD}" = "yes" ]]; then
     for repo in "${REPOS[@]}"; do
         for arch in "${ARCHES[@]}"; do
-            tag=${repo}:${VERSION}-${arch}
-            arch=${arch} tag=${tag} build
+            if [[ "${VARIANT}" = "regular" || "${VARIANT}" = "both" ]]; then
+                tag=${repo}:${VERSION}-${arch}
+                arch=${arch} tag=${tag} build
+            fi
 
-            tag=${tag}-profiling
-            arch=${arch} tag=${tag} build \
-                "--enable-profiling --enable-profiling-locks"
+            if [[ "${VARIANT}" = "profiling" || "${VARIANT}" = "both" ]]; then
+                tag=${repo}:${VERSION}-${arch}-profiling
+                arch=${arch} tag=${tag} build \
+                    "--enable-profiling --enable-profiling-locks"
+            fi
         done
     done
 fi
