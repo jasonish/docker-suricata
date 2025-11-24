@@ -11,6 +11,7 @@ NOCACHE=""
 
 PUSH=no
 MANIFEST=no
+BUILD=yes
 
 REPOS=(
     "docker.io/jasonish/suricata"
@@ -30,6 +31,9 @@ while [ "$#" -gt 0 ]; do
             ;;
         --manifest)
             MANIFEST="yes"
+            ;;
+        --no-build)
+            BUILD="no"
             ;;
         --no-cache)
             NOCACHE="--no-cache"
@@ -76,16 +80,18 @@ build() {
 
 TAGS=()
 
-for repo in "${REPOS[@]}"; do
-    for arch in "${ARCHES[@]}"; do
-        tag=${repo}:${VERSION}-${arch}
-        arch=${arch} tag=${tag} build
+if [[ "${BUILD}" = "yes" ]]; then
+    for repo in "${REPOS[@]}"; do
+        for arch in "${ARCHES[@]}"; do
+            tag=${repo}:${VERSION}-${arch}
+            arch=${arch} tag=${tag} build
 
-        tag=${tag}-profiling
-        arch=${arch} tag=${tag} build \
-            "--enable-profiling --enable-profiling-locks"
+            tag=${tag}-profiling
+            arch=${arch} tag=${tag} build \
+                "--enable-profiling --enable-profiling-locks"
+        done
     done
-done
+fi
 
 if [[ "${PUSH}" = "yes" ]]; then
     for tag in "${BUILT[@]}"; do
