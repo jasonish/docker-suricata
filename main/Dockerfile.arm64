@@ -74,6 +74,7 @@ RUN ./configure \
         --enable-hiredis \
         --enable-geoip \
         --enable-ebpf \
+        --enable-profiling-rules \
         ${CONFIGURE_ARGS}
 
 ARG CORES=2
