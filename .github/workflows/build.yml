@@ -1,4 +1,4 @@
-name: build
+name: arch-arm64
 
 on:
   push:
@@ -11,9 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         version: ["main", "7.0", "8.0"]
@@ -22,7 +21,10 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - run: ../build.sh --arch ${{ matrix.arch }} --variant ${{ matrix.variant }}
+
+      - name: Setup QEMU for ARM64 builds
+        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
+      - name: Build image
         working-directory: ${{ matrix.version }}
+        run: ../build.sh --arch ${{ matrix.arch }} --variant ${{ matrix.variant }}
