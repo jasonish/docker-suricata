@@ -53,7 +53,6 @@ WORKDIR /src
 
 RUN if [ "${VERSION}" = "main" ]; then \
 	git clone https://github.com/OISF/suricata.git suricata-${VERSION}; \
-	git clone https://github.com/OISF/libhtp.git suricata-${VERSION}/libhtp; \
         (cd suricata-${VERSION}/suricata-update && \
 		curl -L https://github.com/OISF/suricata-update/archive/master.tar.gz | tar zxf - --strip-components=1); \
 	(cd suricata-${VERSION} && ./autogen.sh); \
