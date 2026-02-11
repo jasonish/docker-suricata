@@ -13,6 +13,7 @@ RUN dnf -y install \
         cargo \
         cbindgen \
         diffutils \
+        patch \
         dpdk-devel \
         elfutils-libelf-devel \
         file \
@@ -67,6 +68,9 @@ else \
 fi
 
 WORKDIR /src/suricata-${VERSION}
+
+COPY /profiling.patch /tmp/profiling.patch
+RUN patch -p1 < /tmp/profiling.patch
 
 ARG CONFIGURE_ARGS
 

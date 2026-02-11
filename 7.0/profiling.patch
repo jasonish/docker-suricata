@@ -1,0 +1,13 @@
+diff --git a/suricata.yaml.in b/suricata.yaml.in
+index 3cc45a461f..c46a14bda3 100644
+--- a/suricata.yaml.in
++++ b/suricata.yaml.in
+@@ -1876,7 +1876,7 @@ profiling:
+ 
+     # Profiling can be disabled here, but it will still have a
+     # performance impact if compiled in.
+-    enabled: yes
++    enabled: no
+     filename: rule_perf.log
+     append: yes
+     # Set active to yes to enable rules profiling at start
