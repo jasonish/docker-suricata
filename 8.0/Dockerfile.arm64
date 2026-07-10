@@ -51,6 +51,35 @@ RUN if [ "$(arch)" = "x86_64" ]; then \
     dnf -y install hyperscan-devel; \
 fi
 
+ARG CORES=2
+
+# Hyperscan is x86-only and EPEL ships no aarch64 package of it or of
+# Vectorscan, its portable fork (https://github.com/VectorCamp/vectorscan),
+# so build Vectorscan from source. It installs as libhs and Suricata's
+# configure picks it up like Hyperscan. Native CPU detection is off by
+# default (USE_CPU_NATIVE=Off), so the result is a portable NEON baseline
+# that runs on any aarch64 machine, not just the build host.
+ARG VECTORSCAN_VERSION=5.4.12
+RUN if [ "$(arch)" = "aarch64" ]; then \
+        dnf -y install cmake boost-devel ragel sqlite-devel && \
+        mkdir -p /src/vectorscan && cd /src/vectorscan && \
+        curl -L https://github.com/VectorCamp/vectorscan/archive/refs/tags/vectorscan/${VECTORSCAN_VERSION}.tar.gz | tar zxf - --strip-components=1 && \
+        cmake -B build \
+                -DCMAKE_INSTALL_PREFIX=/usr \
+                -DCMAKE_INSTALL_LIBDIR=lib64 \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DBUILD_SHARED_LIBS=ON \
+                -DBUILD_EXAMPLES=OFF \
+                -DBUILD_BENCHMARKS=OFF && \
+        cmake --build build -j "${CORES}" && \
+        cmake --install build; \
+fi
+
+# Stage the shared library for the runner image (no aarch64 runtime package
+# exists to install there). On x86_64 this directory is simply empty.
+RUN mkdir -p /vectorscan-libs && \
+    if [ "$(arch)" = "aarch64" ]; then cp -a /usr/lib64/libhs*.so* /vectorscan-libs/; fi
+
 ARG VERSION
 
 WORKDIR /src
@@ -84,14 +113,10 @@ RUN ./configure \
         --enable-profiling-rules \
         ${CONFIGURE_ARGS}
 
-ARG CORES=2
-
 RUN make -j "${CORES}"
 
-# Verify Hyperscan support is enabled.
-RUN if [ "$(arch)" = "x86_64" ]; then \
-    ./src/suricata --build-info | grep Hyperscan | grep yes; \
-fi
+# Verify Hyperscan support is enabled (provided by Vectorscan on aarch64).
+RUN ./src/suricata --build-info | grep Hyperscan | grep yes
 
 RUN make install install-conf DESTDIR=/fakeroot
 
@@ -139,6 +164,11 @@ RUN \
         find /etc/logrotate.d -type f -not -name suricata -delete
 
 COPY --from=builder /fakeroot /
+
+# Vectorscan's shared library on aarch64 (the directory is empty on x86_64,
+# where the hyperscan package above provides libhs instead).
+COPY --from=builder /vectorscan-libs/ /usr/lib64/
+RUN ldconfig
 
 # Create the directories that didn't get copied from the previous stage.
 RUN mkdir -p /var/log/suricata /var/run/suricata /var/lib/suricata
