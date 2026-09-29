@@ -1,4 +1,4 @@
-name: arch-arm64
+name: build
 
 on:
   push:
