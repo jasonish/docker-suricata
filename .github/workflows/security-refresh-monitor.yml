@@ -1,0 +1,86 @@
+name: security-refresh-monitor
+
+on:
+  schedule:
+    - cron: "37 21 * * *"
+  workflow_dispatch:
+
+# Observation only: no registry credentials, login, or push steps.
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    name: ${{ matrix.version }} / ${{ matrix.platform.arch }} / ${{ matrix.variant }}
+    runs-on: ${{ matrix.platform.runner }}
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ["8.0"]
+        variant: ["regular", "profiling"]
+        platform:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Test monitoring policy
+        run: python3 -m unittest discover -s .github/scripts -v
+
+      - name: Install pinned Trivy
+        env:
+          ARCH: ${{ matrix.platform.arch }}
+        run: |
+          case "$ARCH" in
+            amd64)
+              asset=trivy_0.76.2_Linux-64bit.tar.gz
+              checksum=bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf
+              ;;
+            arm64)
+              asset=trivy_0.76.2_Linux-ARM64.tar.gz
+              checksum=ab9d51f86e6a5fb936f605faff6b593ac51bc378fff4d3e8b9d58358b9c367c3
+              ;;
+            *) exit 1 ;;
+          esac
+          mkdir -p "$RUNNER_TEMP/trivy-bin"
+          cd "$RUNNER_TEMP/trivy-bin"
+          curl --fail --location --retry 3 \
+            "https://github.com/aquasecurity/trivy/releases/download/v0.76.2/$asset" \
+            --output "$asset"
+          echo "$checksum  $asset" | sha256sum --check
+          tar -xzf "$asset" trivy
+          echo "$PWD" >> "$GITHUB_PATH"
+
+      - name: Evaluate security refresh (never publishes)
+        env:
+          VERSION: ${{ matrix.version }}
+          ARCH: ${{ matrix.platform.arch }}
+          VARIANT: ${{ matrix.variant }}
+        run: |
+          python3 .github/scripts/security_refresh_monitor.py \
+            --series "$VERSION" --arch "$ARCH" --variant "$VARIANT" \
+            --work-dir "$RUNNER_TEMP/security-refresh" --output reports
+
+      - name: Annotate incomplete checks
+        if: ${{ failure() || cancelled() }}
+        run: |
+          echo '::warning::INCONCLUSIVE: security refresh monitoring did not complete. No images were published.'
+          echo '### INCONCLUSIVE: monitoring failed or was interrupted; no images published.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Preserve scan reports and decision
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: security-refresh-${{ matrix.version }}-${{ matrix.platform.arch }}-${{ matrix.variant }}
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 14
