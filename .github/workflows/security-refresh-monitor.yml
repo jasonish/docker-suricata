@@ -5,7 +5,7 @@ on:
     - cron: "37 21 * * *"
   workflow_dispatch:
 
-# Observation only: no registry credentials, login, or push steps.
+# Observation only: no builds, registry credentials, or pushes.
 permissions:
   contents: read
 
@@ -15,72 +15,70 @@ concurrency:
 
 jobs:
   monitor:
-    name: ${{ matrix.version }} / ${{ matrix.platform.arch }} / ${{ matrix.variant }}
-    runs-on: ${{ matrix.platform.runner }}
-    timeout-minutes: 180
+    name: ${{ matrix.tag }} / ${{ matrix.arch }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        version: ["8.0"]
-        variant: ["regular", "profiling"]
-        platform:
-          - arch: amd64
-            runner: ubuntu-24.04
-          - arch: arm64
-            runner: ubuntu-24.04-arm
+        tag: ["8.0", "8.0-profiling"]
+        arch: ["amd64", "arm64"]
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-
-      - name: Test monitoring policy
-        run: python3 -m unittest discover -s .github/scripts -v
-
       - name: Install pinned Trivy
-        env:
-          ARCH: ${{ matrix.platform.arch }}
         run: |
-          case "$ARCH" in
-            amd64)
-              asset=trivy_0.76.2_Linux-64bit.tar.gz
-              checksum=bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf
-              ;;
-            arm64)
-              asset=trivy_0.76.2_Linux-ARM64.tar.gz
-              checksum=ab9d51f86e6a5fb936f605faff6b593ac51bc378fff4d3e8b9d58358b9c367c3
-              ;;
-            *) exit 1 ;;
-          esac
           mkdir -p "$RUNNER_TEMP/trivy-bin"
           cd "$RUNNER_TEMP/trivy-bin"
           curl --fail --location --retry 3 \
-            "https://github.com/aquasecurity/trivy/releases/download/v0.76.2/$asset" \
-            --output "$asset"
-          echo "$checksum  $asset" | sha256sum --check
-          tar -xzf "$asset" trivy
+            https://github.com/aquasecurity/trivy/releases/download/v0.76.2/trivy_0.76.2_Linux-64bit.tar.gz \
+            --output trivy.tar.gz
+          echo 'bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf  trivy.tar.gz' | sha256sum --check
+          tar -xzf trivy.tar.gz trivy
           echo "$PWD" >> "$GITHUB_PATH"
 
-      - name: Evaluate security refresh (never publishes)
+      - name: Scan published image and report rebuild recommendation
         env:
-          VERSION: ${{ matrix.version }}
-          ARCH: ${{ matrix.platform.arch }}
-          VARIANT: ${{ matrix.variant }}
+          IMAGE: docker.io/jasonish/suricata:${{ matrix.tag }}
+          ARCH: ${{ matrix.arch }}
         run: |
-          python3 .github/scripts/security_refresh_monitor.py \
-            --series "$VERSION" --arch "$ARCH" --variant "$VARIANT" \
-            --work-dir "$RUNNER_TEMP/security-refresh" --output reports
+          mkdir -p reports
+          trivy image --image-src remote --platform "linux/$ARCH" \
+            --scanners vuln --pkg-types os --ignore-unfixed --list-all-pkgs \
+            --timeout 15m --format json --output reports/trivy.json "$IMAGE"
+
+          # Missing OS/package detection must not be mistaken for a clean scan.
+          jq -e '
+            .Metadata.OS.Family == "alma" and
+            (.Metadata.OS.Name | test("^9([.]|$)")) and
+            any(.Results[]?; .Class == "os-pkgs" and .Type == "alma" and
+              (.Packages | length) > 0)
+          ' reports/trivy.json > /dev/null
+          count=$(jq '[.Results[]? | select(.Class == "os-pkgs") |
+            .Vulnerabilities[]?] | unique_by([.PkgName, .VulnerabilityID]) | length' reports/trivy.json)
+          if [ "$count" -gt 0 ]; then
+            decision="REBUILD WARRANTED: $count fixable OS-package findings"
+          else
+            decision="NO REBUILD INDICATED: no known-fixable OS-package findings"
+          fi
+          echo "::notice::$IMAGE ($ARCH): $decision. Observation only; no images built or published."
+          {
+            echo "## $IMAGE ($ARCH)"
+            echo "$decision"
+            echo
+            echo 'Observation only: no candidate build or publication. Findings do not prove a rebuild will fix them.'
+            echo 'Coverage: AlmaLinux OS advisories; not comprehensive EPEL or source-built application coverage.'
+          } | tee reports/summary.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Annotate incomplete checks
         if: ${{ failure() || cancelled() }}
         run: |
-          echo '::warning::INCONCLUSIVE: security refresh monitoring did not complete. No images were published.'
+          echo '::warning::INCONCLUSIVE: security scan did not complete. No images were published.'
           echo '### INCONCLUSIVE: monitoring failed or was interrupted; no images published.' >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Preserve scan reports and decision
+      - name: Preserve scan report
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: security-refresh-${{ matrix.version }}-${{ matrix.platform.arch }}-${{ matrix.variant }}
+          name: security-refresh-${{ matrix.tag }}-${{ matrix.arch }}
           path: reports/
           if-no-files-found: warn
           retention-days: 14
